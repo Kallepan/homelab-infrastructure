@@ -1,0 +1,4 @@
+---
+- name: Upgrade K8s version
+  ansible.builtin.command: >
+    talosctl --nodes {{ talos_cluster.control_nodes[0].ip }} --talosconfig {{ talos_cluster.working_dir }}/configs/talosconfig upgrade-k8s --to {{ talos_k8s_version }}

@@ -1,0 +1,13 @@
+*.crt
+*.csr
+*.key
+*.pem
+*.p12
+*.pfx
+*.cer
+*.jks
+*.keystore
+
+output/
+
+.DS_Store

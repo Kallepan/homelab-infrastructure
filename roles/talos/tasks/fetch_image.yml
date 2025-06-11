@@ -1,0 +1,22 @@
+# Description: This task fetches the Talos image URL from the Talos Factory API.
+---
+- name: Fetch Image URL
+  ansible.builtin.uri:
+    method: POST
+    url: https://factory.talos.dev/schematics
+    body: "{{ lookup('ansible.builtin.file', 'files/bare-metal.yml') }}"
+    body_format: json
+    status_code: 201
+  register: talos_factory_image
+
+- name: Set Talos Factory Image URL
+  ansible.builtin.set_fact:
+    talos_factory_image_id: "{{ talos_factory_image.json.id }}"
+    talos_factory_image_url: "factory.talos.dev/nocloud-installer/{{ talos_factory_image.json.id }}:{{ talos_version }}"
+  when: not ansible_check_mode
+
+- name: Set Dummy Image URL
+  ansible.builtin.set_fact:
+    talos_factory_image_id: "1234567890"
+    talos_factory_image_url: "factory.talos.dev/nocloud-installer/1234567890:{{ talos_version }}"
+  when: ansible_check_mode

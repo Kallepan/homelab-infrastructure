@@ -1,0 +1,18 @@
+talos_clusters:
+  - name: infrastructure
+    endpoint: infra.home.arpa
+    control_nodes:
+      - ip: "10.10.10.20"
+      - ip: "10.10.10.21"
+      - ip: "10.10.10.22"
+    worker_nodes:
+      - ip: "10.10.10.30"
+      - ip: "10.10.10.31"
+      - ip: "10.10.10.32"
+    working_dir: templates/talos/infrastructure
+    install_cilium: true
+    upgrade_talos: false
+    upgrade_k8s: false
+
+talos_version: "v1.10.3"
+talos_k8s_version: "1.33.0"
