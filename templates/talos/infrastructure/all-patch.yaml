@@ -1,4 +1,7 @@
 cluster:
+  apiServer:
+    extraArgs:
+      feature-gates: UserNamespacesSupport=true,UserNamespacesPodSecurityStandards=true
   controllerManager:
     extraArgs:
       "bind-address": "0.0.0.0"
@@ -28,7 +31,14 @@ machine:
       path: /etc/cri/conf.d/20-customization.part
       op: create
 
+  sysctls:
+    user.max_user_namespaces: "11255"
+
   kubelet:
+    extraConfig:
+      featureGates:
+        UserNamespacesSupport: true
+        UserNamespacesPodSecurityStandards: true
     extraArgs:
       rotate-server-certificates: true
 ---

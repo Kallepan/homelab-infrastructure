@@ -6,7 +6,7 @@ export MINIO_ROOT_USER := $(shell sops -d secrets.yaml | yq .minio.root_user -r)
 export MINIO_ROOT_PASSWORD := $(shell sops -d secrets.yaml | yq .minio.root_password -r)
 SECRETS_FILE        ?= secrets.yaml
 INVENTORY           ?= inventory/hosts.yml
-PLAYBOOK            ?= homelab.yml
+PLAYBOOK            ?= talos.yml
 
 export PUBLIC_KEY := $(shell sops -d secrets.yaml | yq .public_key -r)
 

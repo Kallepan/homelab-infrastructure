@@ -13,7 +13,6 @@
   loop: "{{ talos_clusters }}"
   loop_control:
     loop_var: talos_cluster
-  when: not talosconfig_file.stat.exists
 
 - name: Include Install Cilium
   ansible.builtin.include_tasks: install_cilium.yml
