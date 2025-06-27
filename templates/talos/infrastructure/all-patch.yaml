@@ -6,6 +6,10 @@ cluster:
     extraArgs:
       "bind-address": "0.0.0.0"
 
+  etcd:
+    extraArgs:
+      "listen-metrics-urls": "http://127.0.0.1:2381"
+
   extraManifests:
     - https://raw.githubusercontent.com/alex1989hu/kubelet-serving-cert-approver/main/deploy/standalone-install.yaml
 
