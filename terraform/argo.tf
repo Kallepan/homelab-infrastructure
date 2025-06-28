@@ -1,34 +1,41 @@
-resource "kubernetes_namespace_v1" "argocd" {
+resource "kubernetes_secret_v1" "argo_workflows_postgres_s3_credentials" {
   metadata {
-    name = "argocd"
+    name      = "argo-workflows-postgres-s3-credentials"
+    namespace = "argo"
+  }
+
+  type = "Opaque"
+
+  data = {
+    "ACCESS_KEY_ID"     = var.bucket_backups_access_key
+    "ACCESS_SECRET_KEY" = var.bucket_backups_secret_key
   }
 }
 
-resource "helm_release" "argocd" {
-  depends_on = [kubernetes_namespace_v1.argocd]
+resource "kubernetes_secret_v1" "argo_workflows_s3_credentials" {
+  metadata {
+    name      = "argo-workflows-s3-credentials"
+    namespace = "argo"
+  }
 
-  name       = "argocd"
-  repository = "https://argoproj.github.io/argo-helm"
-  chart      = "argo-cd"
-
-  namespace = kubernetes_namespace_v1.argocd.metadata[0].name
-
-  wait = true
-
-  values = [
-    templatefile("${path.module}/values/argocd-values.yaml", {
-      root_ca = file(var.cert_manager_ca_crt_path)
-    })
-  ]
+    type = "Opaque"
+    
+    data = {
+        "accessKey" = var.bucket_argo_access_key
+        "secretKey" = var.bucket_argo_secret_key
+    }
 }
 
-resource "kubectl_manifest" "argocd_app_of_apps" {
-  depends_on = [helm_release.argocd, kubernetes_namespace_v1.argocd]
 
-  yaml_body = templatefile("${path.module}/manifests/argocd-app-of-apps.yaml", {
-    namespace       = kubernetes_namespace_v1.argocd.metadata[0].name
-    repo_url        = var.argocd_repo_url
-    target_revision = var.argocd_target_revision
-    path            = var.argocd_app_of_apps_path
-  })
+resource "kubernetes_secret_v1" "argo_homelab_ca" {
+  metadata {
+    name      = "homelab-ca"
+    namespace = "argo"
+  }
+
+  data = {
+    "homelab-ca.crt" = file(var.cert_manager_ca_crt_path)
+  }
+
+  type = "Opaque"
 }
