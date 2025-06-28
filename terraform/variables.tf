@@ -138,6 +138,18 @@ variable "grafana_oauth_client_secret" {
   sensitive   = true
 }
 
+## Argo Configuration Variables
+variable "argo_oauth_client_id" {
+  description = "OAuth client ID for argo"
+  type        = string
+  sensitive   = true
+}
+variable "argo_oauth_client_secret" {
+  description = "OAuth client secret for argo"
+  type        = string
+  sensitive   = true
+}
+
 ## GitLab Configuration Variables
 variable "gitlab_oauth_client_id" {
   description = "OAuth client ID for GitLab"

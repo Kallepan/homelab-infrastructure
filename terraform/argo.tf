@@ -39,3 +39,17 @@ resource "kubernetes_secret_v1" "argo_homelab_ca" {
 
   type = "Opaque"
 }
+
+resource "kubernetes_secret_v1" "argo_server_sso" {
+  metadata {
+    name      = "argo-server-sso"
+    namespace = "argo"
+  }
+
+  type = "Opaque"
+
+  data = {
+    "client-id"     = var.argo_oauth_client_id
+    "client-secret" = var.argo_oauth_client_secret
+  }
+}

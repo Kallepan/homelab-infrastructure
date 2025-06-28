@@ -43,6 +43,9 @@ export TF_VAR_bucket_rancher_secret_key ?= $(shell sops -d secrets.yaml | yq .mi
 export TF_VAR_grafana_oauth_client_secret ?= $(shell sops -d secrets.yaml | yq .grafana.oauth_client_secret -r)
 export TF_VAR_grafana_oauth_client_id ?= $(shell sops -d secrets.yaml | yq .grafana.oauth_client_id -r)
 
+export TF_VAR_argo_oauth_client_id ?= $(shell sops -d secrets.yaml | yq .argo.oauth_client_id -r)
+export TF_VAR_argo_oauth_client_secret ?= $(shell sops -d secrets.yaml | yq .argo.oauth_client_secret -r)
+
 export TF_VAR_alertmanager_mattermost_webhook_url ?= $(shell sops -d secrets.yaml | yq .alertmanager.mattermost_webhook_url -r)
 
 export TF_VAR_gitlab_oauth_client_id ?= $(shell sops -d secrets.yaml | yq .gitlab.oauth_client_id -r)
