@@ -14,6 +14,9 @@ configs:
       rootCA: |
         ${indent(8, root_ca)}
       requestedScopes: ["openid", "profile", "email", "groups"]
+  rbac:
+    policy.csv: |
+      g, ArgoCDAdmins, role:admin
 
 server:
   ingress:
