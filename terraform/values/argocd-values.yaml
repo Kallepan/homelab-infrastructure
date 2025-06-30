@@ -16,7 +16,7 @@ configs:
       requestedScopes: ["openid", "profile", "email", "groups"]
   rbac:
     policy.csv: |
-      g, ArgoCDAdmins, role:admin
+      g, admin, role:admin
 
 server:
   ingress:
