@@ -2,8 +2,16 @@
 #   Ansible Variables
 # ===========================
 
+# Minio Credentials
 export MINIO_ROOT_USER := $(shell sops -d secrets.yaml | yq .minio.root_user -r)
 export MINIO_ROOT_PASSWORD := $(shell sops -d secrets.yaml | yq .minio.root_password -r)
+
+# PostgreSQL Credentials
+export POSTGRESQL_PASSWORD ?= $(shell sops -d secrets.yaml | yq .postgresql.password -r)
+export POSTGRES_EXPORTER_PASSWORD ?= $(shell sops -d secrets.yaml | yq .postgresql.exporter.password -r)
+export POSTGRESQL_AWS_ACCESS_KEY_ID ?= $(shell sops -d secrets.yaml | yq .minio.buckets.backups.access_key -r)
+export POSTGRESQL_AWS_SECRET_ACCESS_KEY ?= $(shell sops -d secrets.yaml | yq .minio.buckets.backups.secret_key -r)
+
 SECRETS_FILE        ?= secrets.yaml
 INVENTORY           ?= inventory/hosts.yml
 PLAYBOOK            ?= talos.yml

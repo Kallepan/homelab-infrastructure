@@ -1,0 +1,85 @@
+---
+- name: Ensure tar is installed
+  ansible.builtin.package:
+    name: tar
+    state: present
+  become: true
+  become_user: root
+
+- name: Create postgresql exporter user in postgres
+  ansible.builtin.command:
+    cmd: |
+      su - postgres -c "psql -c \"CREATE USER {{ postgresql_exporter_user }} WITH PASSWORD '{{ lookup('env', 'POSTGRES_EXPORTER_PASSWORD') }}';\"
+      GRANT CONNECT ON DATABASE postgres TO {{ postgresql_exporter_user }};
+      GRANT pg_monitor TO {{ postgresql_exporter_user }};\""
+  become: true
+  become_user: root
+
+- name: Ensure exporter group exists
+  ansible.builtin.group:
+    name: "{{ postgresql_exporter_user }}"
+    state: present
+  become: true
+  become_user: root
+
+- name: Ensure exporter user exists
+  ansible.builtin.user:
+    name: "{{ postgresql_exporter_user }}"
+    state: present
+    system: true
+    shell: /usr/sbin/nologin
+    groups: "{{ postgresql_exporter_user }}"
+    append: true
+  become: true
+  become_user: root
+
+- name: Download PostgreSQL exporter
+  ansible.builtin.get_url:
+    url: "{{ postgresql_exporter_url }}"
+    dest: "/tmp/postgres_exporter.tar.gz"
+    mode: '0644'
+  become: true
+  become_user: root
+
+- name: Extract PostgreSQL exporter
+  ansible.builtin.unarchive:
+    src: "/tmp/postgres_exporter.tar.gz"
+    dest: "/usr/local/bin"
+    remote_src: true
+    extra_opts:
+      - --strip-components=1
+  become: true
+  become_user: root
+
+- name: Set permissions for PostgreSQL exporter binary
+  ansible.builtin.file:
+    path: "/usr/local/bin/postgres_exporter"
+    owner: "{{ postgresql_exporter_user }}"
+    group: "{{ postgresql_exporter_user }}"
+    mode: '0755'
+  become: true
+  become_user: root
+
+- name: Create systemd service file for PostgreSQL exporter
+  ansible.builtin.template:
+    src: "postgres_exporter.service.j2"
+    dest: "/etc/systemd/system/postgres_exporter.service"
+    mode: '0644'
+  become: true
+  become_user: root
+  vars:
+    postgresql_exporter_password: "{{ lookup('env', 'POSTGRES_EXPORTER_PASSWORD') }}"
+
+- name: Reload systemd to recognize the new PostgreSQL exporter service
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+  become_user: root
+
+- name: Ensure PostgreSQL exporter service is enabled and started
+  ansible.builtin.systemd:
+    name: postgres_exporter
+    state: started
+    enabled: true
+  become: true
+  become_user: root

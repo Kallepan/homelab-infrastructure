@@ -1,0 +1,18 @@
+---
+- name: Install PostgreSQL
+  ansible.builtin.include_tasks: install-postgresql.yml
+
+- name: Configure PostgreSQL
+  ansible.builtin.include_tasks: configure-postgresql.yml
+
+- name: Configure PostgreSQL SSL
+  ansible.builtin.include_tasks: configure-postgresql-ssl.yml
+
+- name: Configure WAL Archiving
+  ansible.builtin.include_tasks: configure-wal-archiving.yml
+
+- name: Configure Base Backup
+  ansible.builtin.include_tasks: configure-base-backup.yml
+
+- name: Configure Postgres Metrics Exporter
+  ansible.builtin.include_tasks: configure-postgres-metrics-exporter.yml
