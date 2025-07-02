@@ -100,7 +100,7 @@ vyos_dhcpv4_configs:
     static_mappings:
       - mac: "BC:24:11:76:48:09"
         ip: "10.10.30.10"
-        hostname: "minio"
+        hostname: "storage"
   - network_name: "VPN"
     subnet: "10.10.100.0/24"
     subnet_id: "4"
@@ -239,6 +239,10 @@ vyos_dns_configs:
       address: "10.10.20.11"
     # Load Balancer S3
     - domain: "s3.storage.home.arpa"
+      type: "A"
+      name: "@"
+      address: "10.10.30.10"
+    - domain: "psql.storage.home.arpa"
       type: "A"
       name: "@"
       address: "10.10.30.10"
