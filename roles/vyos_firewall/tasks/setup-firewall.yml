@@ -480,6 +480,13 @@
       - set firewall ipv6 name INFv6-to-STOv4 rule 800 action 'accept'
       - set firewall ipv6 name INFv6-to-STOv4 rule 800 destination port '22,2222'
       - set firewall ipv6 name INFv6-to-STOv4 rule 800 protocol 'tcp'
+      # Postgres
+      - set firewall ipv4 name INFv4-to-STOv4 rule 5432 action 'accept'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 5432 destination port '5432'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 5432 protocol 'tcp'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 5432 action 'accept'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 5432 destination port '5432'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 5432 protocol 'tcp'
       # S3
       - set firewall ipv4 name INFv4-to-STOv4 rule 9000 action 'accept'
       - set firewall ipv4 name INFv4-to-STOv4 rule 9000 destination port '9000'
@@ -487,6 +494,13 @@
       - set firewall ipv6 name INFv6-to-STOv6 rule 9000 action 'accept'
       - set firewall ipv6 name INFv6-to-STOv6 rule 9000 destination port '9000'
       - set firewall ipv6 name INFv6-to-STOv6 rule 9000 protocol 'tcp'
+      # Metrics
+      - set firewall ipv4 name INFv4-to-STOv4 rule 9187 action 'accept'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 9187 destination port '9187'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 9187 protocol 'tcp'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 9187 action 'accept'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 9187 destination port '9187'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 9187 protocol 'tcp'
       # Ipv4
       - set firewall zone sto from inf firewall name 'INFv4-to-STOv4'
       # Ipv6
@@ -571,6 +585,13 @@
       - set firewall ipv6 name LANv6-to-STOv6 rule 100 action 'accept'
       - set firewall ipv6 name LANv6-to-STOv6 rule 100 protocol 'ipv6-icmp'
       - set firewall ipv6 name LANv6-to-STOv6 rule 100 icmpv6 type-name 'echo-request'
+      # Allow Postgres
+      - set firewall ipv4 name LANv4-to-STOv4 rule 5432 action 'accept'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 5432 destination port '5432'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 5432 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 5432 action 'accept'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 5432 destination port '5432'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 5432 protocol 'tcp'
       # Allow S3
       - set firewall ipv4 name LANv4-to-STOv4 rule 9000 action 'accept'
       - set firewall ipv4 name LANv4-to-STOv4 rule 9000 destination port '9000'
@@ -744,6 +765,13 @@
       - set firewall ipv6 name VPNv6-to-STOv6 rule 800 action 'accept'
       - set firewall ipv6 name VPNv6-to-STOv6 rule 800 destination port '22,2222'
       - set firewall ipv6 name VPNv6-to-STOv6 rule 800 protocol 'tcp'
+      # Postgres
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 5432 action 'accept'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 5432 destination port '5432'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 5432 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 5432 action 'accept'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 5432 destination port '5432'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 5432 protocol 'tcp'
       # Allow S3
       - set firewall ipv4 name VPNv4-to-STOv4 rule 9000 action 'accept'
       - set firewall ipv4 name VPNv4-to-STOv4 rule 9000 destination port '9000'
