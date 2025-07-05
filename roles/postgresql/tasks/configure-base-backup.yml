@@ -1,7 +1,7 @@
 ---
 - name: Copy base backup script to remote host
-  ansible.builtin.copy:
-    src: base_backup.sh
+  ansible.builtin.template:
+    src: "base_backup.sh.j2"
     dest: /usr/local/bin/base_backup.sh
     mode: '0750'
     owner: postgres

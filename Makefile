@@ -14,7 +14,7 @@ export POSTGRESQL_AWS_SECRET_ACCESS_KEY ?= $(shell sops -d secrets.yaml | yq .mi
 
 SECRETS_FILE        ?= secrets.yaml
 INVENTORY           ?= inventory/hosts.yml
-PLAYBOOK            ?= talos.yml
+PLAYBOOK            ?= playbooks/homelab.yml
 
 export PUBLIC_KEY := $(shell sops -d secrets.yaml | yq .public_key -r)
 

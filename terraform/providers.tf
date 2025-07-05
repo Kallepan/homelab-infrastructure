@@ -38,4 +38,5 @@ provider "minio" {
   minio_user     = var.minio_user
   minio_password = var.minio_password
   minio_ssl      = true
+  minio_insecure = true
 }

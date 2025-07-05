@@ -398,7 +398,6 @@ resource "minio_iam_group_policy_attachment" "rancher" {
   policy_name = minio_iam_policy.rancher_policy.name
 }
 
-
 resource "minio_s3_bucket" "rancher" {
   bucket = "rancher"
   acl    = "private"

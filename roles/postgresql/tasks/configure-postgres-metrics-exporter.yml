@@ -6,12 +6,24 @@
   become: true
   become_user: root
 
-- name: Create postgresql exporter user in postgres
+- name: Create PostgreSQL exporter user
   ansible.builtin.command:
     cmd: |
-      su - postgres -c "psql -c \"CREATE USER {{ postgresql_exporter_user }} WITH PASSWORD '{{ lookup('env', 'POSTGRES_EXPORTER_PASSWORD') }}';\"
-      GRANT CONNECT ON DATABASE postgres TO {{ postgresql_exporter_user }};
-      GRANT pg_monitor TO {{ postgresql_exporter_user }};\""
+      su - postgres -c "psql -c \"CREATE USER {{ postgresql_exporter_user }} WITH PASSWORD '{{ lookup('env', 'POSTGRES_EXPORTER_PASSWORD') }}';\" && touch /var/lib/postgresql/{{ postgresql_version }}/.{{ postgresql_exporter_user }}_created"
+    creates: "/var/lib/postgresql/{{ postgresql_version }}/.{{ postgresql_exporter_user }}_created"
+  become: true
+  become_user: root
+  register: create_user_result
+  failed_when: 
+    - create_user_result.rc != 0
+    - "'already exists' not in create_user_result.stderr"
+  changed_when: "'already exists' not in create_user_result.stderr"
+
+- name: Grant PostgreSQL exporter user permissions
+  ansible.builtin.command:
+    cmd: |
+      su - postgres -c "psql -c \"GRANT CONNECT ON DATABASE postgres TO {{ postgresql_exporter_user }};\" && psql -c \"GRANT pg_monitor TO {{ postgresql_exporter_user }};\" && touch /var/lib/postgresql/{{ postgresql_version }}/.{{ postgresql_exporter_user }}_permissions_granted"
+    creates: "/var/lib/postgresql/{{ postgresql_version }}/.{{ postgresql_exporter_user }}_permissions_granted"
   become: true
   become_user: root
 
