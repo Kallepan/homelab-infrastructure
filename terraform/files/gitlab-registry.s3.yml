@@ -1,0 +1,7 @@
+s3:
+  bucket: gitlab-registry-storage
+  accesskey: ${gitlab_registry_s3_access_key}
+  secretkey: ${gitlab_registry_s3_secret_key}
+  region: eu-central-1
+  v4auth: true
+  regionendpoint: https://s3.storage.home.arpa:9000

@@ -1,0 +1,1063 @@
+---
+- name: Assign zones to interfaces
+  vyos.vyos.vyos_config:
+    lines:
+      - set firewall zone inf default-action 'drop'
+      - set firewall zone inf member interface 'eth1'
+      - set firewall zone svc default-action 'drop'
+      - set firewall zone svc member interface 'eth2'
+      - set firewall zone sto default-action 'drop'
+      - set firewall zone sto member interface 'eth3'
+      - set firewall zone vpn default-action 'drop'
+      - set firewall zone vpn member interface 'eth4'
+      - set firewall zone dmz default-action 'drop'
+      - set firewall zone dmz member interface 'eth5'
+      - set firewall zone wg01 default-action 'drop'
+      - set firewall zone wg01 member interface 'wg01'
+    save: true
+
+### WAN ###
+### WAN and LOCAL ###
+# These rules must be applied at once otherwise the firewall will be locked out
+- name: Setup WAN and LOCAL Rules
+  vyos.vyos.vyos_config:
+    lines:
+      ### WAN and LOCAL ###
+      - set firewall zone wan member interface 'eth0'
+      - set firewall zone wan default-action 'drop'
+      - set firewall zone local default-action 'drop'
+      - set firewall zone local local-zone
+      ### WAN to LOCAL ###
+      # Drop all traffic by default
+      - set firewall ipv4 name WANv4-to-LOCALv4 default-action 'drop'
+      - set firewall ipv4 name WANv4-to-LOCALv4 default-log
+      - set firewall ipv6 name WANv6-to-LOCALv6 default-action 'drop'
+      - set firewall ipv6 name WANv6-to-LOCALv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 1 action 'accept'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 1 state established
+      - set firewall ipv6 name WANv6-to-LOCALv6 rule 1 action 'accept'
+      - set firewall ipv6 name WANv6-to-LOCALv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 2 action 'drop'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 2 state invalid
+      - set firewall ipv6 name WANv6-to-LOCALv6 rule 2 action 'drop'
+      - set firewall ipv6 name WANv6-to-LOCALv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 3 action 'drop'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 3 state related
+      - set firewall ipv6 name WANv6-to-LOCALv6 rule 3 action 'drop'
+      - set firewall ipv6 name WANv6-to-LOCALv6 rule 3 state related
+      # SSH
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 800 action 'drop'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 800 state new
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 800 destination port '22'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 800 protocol 'tcp'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 800 recent count 3
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 800 recent time 'minute'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 801 action 'accept'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 801 state new
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 801 destination port '22'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 801 protocol 'tcp'
+      # Wireguard
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 900 action 'accept'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 900 description 'Allow WireGuard traffic'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 900 destination port '51820'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 900 protocol 'udp'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 900 log
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 900 source
+      # Accept established connections from WireGuard
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 901 action 'accept'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 901 description 'Allow established'
+      - set firewall ipv4 name WANv4-to-LOCALv4 rule 901 state established
+      # Assign the rules
+      - set firewall zone local from wan firewall name 'WANv4-to-LOCALv4'
+      - set firewall zone local from wan firewall ipv6-name 'WANv6-to-LOCALv6'
+
+      ### LOCAL to WAN ###
+      # Drop all traffic by default
+      - set firewall ipv4 name LOCALv4-to-WANv4 default-action 'drop'
+      - set firewall ipv4 name LOCALv4-to-WANv4 default-log
+      - set firewall ipv6 name LOCALv6-to-WANv6 default-action 'drop'
+      - set firewall ipv6 name LOCALv6-to-WANv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 1 action 'accept'
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 1 state established
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 1 action 'accept'
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 2 action 'drop'
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 2 state invalid
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 2 action 'drop'
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 3 action 'drop'
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 3 state related
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 3 action 'drop'
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 3 state related
+      # ICMP
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 100 action 'accept'
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 100 protocol 'icmp'
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 100 icmp type-name 'echo-request'
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 100 action 'accept'
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 100 protocol 'ipv6-icmp'
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 100 icmpv6 type-name 'echo-request'
+      # HTTP/HTTPS
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 200 action 'accept'
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 200 destination port '80,443'
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 200 protocol 'tcp'
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 200 action 'accept'
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 200 destination port '80,443'
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 200 protocol 'tcp'
+      # DNS
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 600 action 'accept'
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 600 destination port '53'
+      - set firewall ipv4 name LOCALv4-to-WANv4 rule 600 protocol 'udp'
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 600 action 'accept'
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 600 destination port '53'
+      - set firewall ipv6 name LOCALv6-to-WANv6 rule 600 protocol 'udp'
+      # Assign the rules
+      - set firewall zone wan from local firewall name 'LOCALv4-to-WANv4'
+      - set firewall zone wan from local firewall ipv6-name 'LOCALv6-to-WANv6'
+    save: true
+
+### WAN to LAN ###
+- name: Setup WAN to LANs Rules
+  vyos.vyos.vyos_config:
+    lines:
+      # Drop all traffic by default
+      - set firewall ipv4 name WANv4-to-LANv4 default-action 'drop'
+      - set firewall ipv4 name WANv4-to-LANv4 default-log
+      - set firewall ipv6 name WANv6-to-LANv6 default-action 'drop'
+      - set firewall ipv6 name WANv6-to-LANv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name WANv4-to-LANv4 rule 1 action 'accept'
+      - set firewall ipv4 name WANv4-to-LANv4 rule 1 state established
+      - set firewall ipv6 name WANv6-to-LANv6 rule 1 action 'accept'
+      - set firewall ipv6 name WANv6-to-LANv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name WANv4-to-LANv4 rule 2 action 'drop'
+      - set firewall ipv4 name WANv4-to-LANv4 rule 2 state invalid
+      - set firewall ipv6 name WANv6-to-LANv6 rule 2 action 'drop'
+      - set firewall ipv6 name WANv6-to-LANv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name WANv4-to-LANv4 rule 3 action 'drop'
+      - set firewall ipv4 name WANv4-to-LANv4 rule 3 state related
+      - set firewall ipv6 name WANv6-to-LANv6 rule 3 action 'drop'
+      - set firewall ipv6 name WANv6-to-LANv6 rule 3 state related
+      # IPV4
+      - set firewall zone inf from wan firewall name 'WANv4-to-LANv4'
+      - set firewall zone svc from wan firewall name 'WANv4-to-LANv4'
+      - set firewall zone sto from wan firewall name 'WANv4-to-LANv4'
+      - set firewall zone vpn from wan firewall name 'WANv4-to-LANv4'
+      # IPV6
+      - set firewall zone inf from wan firewall ipv6-name 'WANv6-to-LANv6'
+      - set firewall zone svc from wan firewall ipv6-name 'WANv6-to-LANv6'
+      - set firewall zone sto from wan firewall ipv6-name 'WANv6-to-LANv6'
+      - set firewall zone vpn from wan firewall ipv6-name 'WANv6-to-LANv6'
+    save: true
+
+### LAN ###
+### LAN to WAN ###
+- name: Setup LANs to WAN Rules
+  vyos.vyos.vyos_config:
+    lines:
+      # Drop all traffic by default
+      - set firewall ipv4 name LANv4-to-WANv4 default-action 'drop'
+      - set firewall ipv4 name LANv4-to-WANv4 default-log
+      - set firewall ipv6 name LANv6-to-WANv6 default-action 'drop'
+      - set firewall ipv6 name LANv6-to-WANv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name LANv4-to-WANv4 rule 1 action 'accept'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 1 state established
+      - set firewall ipv6 name LANv6-to-WANv6 rule 1 action 'accept'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name LANv4-to-WANv4 rule 2 action 'drop'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 2 state invalid
+      - set firewall ipv6 name LANv6-to-WANv6 rule 2 action 'drop'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name LANv4-to-WANv4 rule 3 action 'drop'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 3 state related
+      - set firewall ipv6 name LANv6-to-WANv6 rule 3 action 'drop'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 3 state related
+      # ICMP
+      - set firewall ipv4 name LANv4-to-WANv4 rule 100 action 'accept'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 100 protocol 'icmp'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 100 icmp type-name 'echo-request'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 100 action 'accept'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 100 protocol 'ipv6-icmp'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 100 icmpv6 type-name 'echo-request'
+      # Allow HTTP/HTTPS
+      - set firewall ipv4 name LANv4-to-WANv4 rule 200 action 'accept'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 200 destination port '80,443,6443'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 200 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 200 action 'accept'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 200 destination port '80,443,6443'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 200 protocol 'tcp'
+      # FTP
+      - set firewall ipv4 name LANv4-to-WANv4 rule 300 action 'accept'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 300 destination port '20,21'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 300 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 300 action 'accept'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 300 destination port '20,21'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 300 protocol 'tcp'
+      # NTP
+      - set firewall ipv4 name LANv4-to-WANv4 rule 400 action 'accept'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 400 destination port '123'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 400 protocol 'udp'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 400 action 'accept'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 400 destination port '123'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 400 protocol 'udp'
+      # DNS
+      - set firewall ipv4 name LANv4-to-WANv4 rule 600 action 'accept'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 600 destination port '53'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 600 protocol 'udp'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 600 action 'accept'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 600 destination port '53'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 600 protocol 'udp'
+      # SSH
+      - set firewall ipv4 name LANv4-to-WANv4 rule 800 action 'accept'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 800 destination port '22'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 800 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 800 action 'accept'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 800 destination port '22'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 800 protocol 'tcp'
+      # Docker Registry
+      - set firewall ipv4 name LANv4-to-WANv4 rule 5000 action 'accept'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 5000 destination port '5000'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 5000 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 5000 action 'accept'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 5000 destination port '5000'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 5000 protocol 'tcp'
+      # Cloudflare
+      - set firewall ipv4 name LANv4-to-WANv4 rule 7844 action 'accept'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 7844 destination port '7844'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 7844 protocol 'tcp_udp'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 7844 protocol 'tcp_udp'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 7844 action 'accept'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 7844 destination port '7844'
+      # Proxmox
+      - set firewall ipv4 name LANv4-to-WANv4 rule 8006 action 'accept'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 8006 destination port '8006'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 8006 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 8006 action 'accept'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 8006 destination port '8006'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 8006 protocol 'tcp'
+      # Minio
+      - set firewall ipv4 name LANv4-to-WANv4 rule 9000 action 'accept'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 9000 destination port '9000'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 9000 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 9000 action 'accept'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 9000 destination port '9000'
+      - set firewall ipv6 name LANv6-to-WANv6 rule 9000 protocol 'tcp'
+      # Ipv4
+      - set firewall zone wan from inf firewall name 'LANv4-to-WANv4'
+      - set firewall zone wan from svc firewall name 'LANv4-to-WANv4'
+      - set firewall zone wan from sto firewall name 'LANv4-to-WANv4'
+      - set firewall zone wan from vpn firewall name 'LANv4-to-WANv4'
+      - set firewall zone wan from wg01 firewall name 'LANv4-to-WANv4'
+      # Ipv6
+      - set firewall zone wan from inf firewall ipv6-name 'LANv6-to-WANv6'
+      - set firewall zone wan from svc firewall ipv6-name 'LANv6-to-WANv6'
+      - set firewall zone wan from sto firewall ipv6-name 'LANv6-to-WANv6'
+      - set firewall zone wan from vpn firewall ipv6-name 'LANv6-to-WANv6'
+      - set firewall zone wan from wg01 firewall ipv6-name 'LANv6-to-WANv6'
+    save: true
+
+### LAN to LOCAL ###
+- name: Setup LANs to LOCAL Rules
+  vyos.vyos.vyos_config:
+    lines:
+      # Drop all traffic by default
+      - set firewall ipv4 name LANv4-to-LOCALv4 default-action 'drop'
+      - set firewall ipv4 name LANv4-to-LOCALv4 default-log
+      - set firewall ipv6 name LANv6-to-LOCALv6 default-action 'drop'
+      - set firewall ipv6 name LANv6-to-LOCALv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 1 action 'accept'
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 1 state established
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 1 action 'accept'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 2 action 'drop'
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 2 state invalid
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 2 action 'drop'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 3 action 'drop'
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 3 state related
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 3 action 'drop'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 3 state related
+      # ICMP
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 100 action 'accept'
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 100 protocol 'icmp'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 100 action 'accept'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 100 protocol 'ipv6-icmp'
+      # NTP
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 400 action 'accept'
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 400 destination port '123'
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 400 protocol 'udp'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 400 action 'accept'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 400 destination port '123'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 400 protocol 'udp'
+      # TFTP
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 500 action 'accept'
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 500 destination port '69'
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 500 protocol 'udp'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 500 action 'accept'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 500 destination port '69'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 500 protocol 'udp'
+      # DNS
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 600 action 'accept'
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 600 destination port '53'
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 600 protocol 'udp'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 600 action 'accept'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 600 destination port '53'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 600 protocol 'udp'
+      # DHCP
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 700 action 'accept'
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 700 destination port '67,68'
+      - set firewall ipv4 name LANv4-to-LOCALv4 rule 700 protocol 'udp'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 700 action 'accept'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 700 destination port '67,68'
+      - set firewall ipv6 name LANv6-to-LOCALv6 rule 700 protocol 'udp'
+      # Ipv4
+      - set firewall zone local from inf firewall name 'LANv4-to-LOCALv4'
+      - set firewall zone local from svc firewall name 'LANv4-to-LOCALv4'
+      - set firewall zone local from sto firewall name 'LANv4-to-LOCALv4'
+      - set firewall zone local from vpn firewall name 'LANv4-to-LOCALv4'
+      - set firewall zone local from wg01 firewall name 'LANv4-to-LOCALv4'
+      # Ipv6
+      - set firewall zone local from inf firewall ipv6-name 'LANv6-to-LOCALv6'
+      - set firewall zone local from svc firewall ipv6-name 'LANv6-to-LOCALv6'
+      - set firewall zone local from sto firewall ipv6-name 'LANv6-to-LOCALv6'
+      - set firewall zone local from vpn firewall ipv6-name 'LANv6-to-LOCALv6'
+      - set firewall zone local from wg01 firewall ipv6-name 'LANv6-to-LOCALv6'
+    save: true
+
+### LOCAL to LAN ###
+- name: Setup LOCAL to LANs Rules
+  vyos.vyos.vyos_config:
+    lines:
+      # Drop all traffic by default
+      - set firewall ipv4 name LOCALv4-to-LANv4 default-action 'drop'
+      - set firewall ipv4 name LOCALv4-to-LANv4 default-log
+      - set firewall ipv6 name LOCALv6-to-LANv6 default-action 'drop'
+      - set firewall ipv6 name LOCALv6-to-LANv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name LOCALv4-to-LANv4 rule 1 action 'accept'
+      - set firewall ipv4 name LOCALv4-to-LANv4 rule 1 state established
+      - set firewall ipv6 name LOCALv6-to-LANv6 rule 1 action 'accept'
+      - set firewall ipv6 name LOCALv6-to-LANv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name LOCALv4-to-LANv4 rule 2 action 'drop'
+      - set firewall ipv4 name LOCALv4-to-LANv4 rule 2 state invalid
+      - set firewall ipv6 name LOCALv6-to-LANv6 rule 2 action 'drop'
+      - set firewall ipv6 name LOCALv6-to-LANv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name LOCALv4-to-LANv4 rule 3 action 'drop'
+      - set firewall ipv4 name LOCALv4-to-LANv4 rule 3 state related
+      - set firewall ipv6 name LOCALv6-to-LANv6 rule 3 action 'drop'
+      - set firewall ipv6 name LOCALv6-to-LANv6 rule 3 state related
+      # Ipv4
+      - set firewall zone inf from local firewall name 'LOCALv4-to-LANv4'
+      - set firewall zone svc from local firewall name 'LOCALv4-to-LANv4'
+      - set firewall zone sto from local firewall name 'LOCALv4-to-LANv4'
+      - set firewall zone vpn from local firewall name 'LOCALv4-to-LANv4'
+      - set firewall zone wg01 from local firewall name 'LOCALv4-to-LANv4'
+      # Ipv6
+      - set firewall zone inf from local firewall ipv6-name 'LOCALv6-to-LANv6'
+      - set firewall zone svc from local firewall ipv6-name 'LOCALv6-to-LANv6'
+      - set firewall zone sto from local firewall ipv6-name 'LOCALv6-to-LANv6'
+      - set firewall zone vpn from local firewall ipv6-name 'LOCALv6-to-LANv6'
+      - set firewall zone wg01 from local firewall ipv6-name 'LOCALv6-to-LANv6'
+    save: true
+
+### LAN to LAN ###
+### INF to LANs ###
+- name: Setup INF to LANs
+  vyos.vyos.vyos_config:
+    lines:
+      ### INF to LANs ###
+      # Drop all traffic by default
+      - set firewall ipv4 name INFv4-to-LANv4 default-action 'drop'
+      - set firewall ipv4 name INFv4-to-LANv4 default-log
+      - set firewall ipv6 name INFv6-to-LANv6 default-action 'drop'
+      - set firewall ipv6 name INFv6-to-LANv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name INFv4-to-LANv4 rule 1 action 'accept'
+      - set firewall ipv4 name INFv4-to-LANv4 rule 1 state established
+      - set firewall ipv6 name INFv6-to-LANv6 rule 1 action 'accept'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name INFv4-to-LANv4 rule 2 action 'drop'
+      - set firewall ipv4 name INFv4-to-LANv4 rule 2 state invalid
+      - set firewall ipv6 name INFv6-to-LANv6 rule 2 action 'drop'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name INFv4-to-LANv4 rule 3 action 'drop'
+      - set firewall ipv4 name INFv4-to-LANv4 rule 3 state related
+      - set firewall ipv6 name INFv6-to-LANv6 rule 3 action 'drop'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 3 state related
+      # ICMP
+      - set firewall ipv4 name INFv4-to-LANv4 rule 100 action 'accept'
+      - set firewall ipv4 name INFv4-to-LANv4 rule 100 protocol 'icmp'
+      - set firewall ipv4 name INFv4-to-LANv4 rule 100 icmp type-name 'echo-request'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 100 action 'accept'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 100 protocol 'ipv6-icmp'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 100 icmpv6 type-name 'echo-request'
+      # Allow HTTP/HTTPS
+      - set firewall ipv4 name INFv4-to-LANv4 rule 200 action 'accept'
+      - set firewall ipv4 name INFv4-to-LANv4 rule 200 destination port '80,443,6443'
+      - set firewall ipv4 name INFv4-to-LANv4 rule 200 protocol 'tcp'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 200 action 'accept'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 200 destination port '80,443,6443'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 200 protocol 'tcp'
+      # SSH
+      - set firewall ipv4 name INFv4-to-LANv4 rule 800 action 'accept'
+      - set firewall ipv4 name INFv4-to-LANv4 rule 800 destination port '22,2222'
+      - set firewall ipv4 name INFv4-to-LANv4 rule 800 protocol 'tcp'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 800 action 'accept'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 800 destination port '22,2222'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 800 protocol 'tcp'
+      # Talos
+      - set firewall ipv4 name INFv4-to-LANv4 rule 50000 action 'accept'
+      - set firewall ipv4 name INFv4-to-LANv4 rule 50000 destination port '50000'
+      - set firewall ipv4 name INFv4-to-LANv4 rule 50000 protocol 'tcp'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 50000 action 'accept'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 50000 destination port '50000'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 50000 protocol 'tcp'
+      # Ipv4
+      - set firewall zone svc from inf firewall name 'INFv4-to-LANv4'
+      # Ipv6
+      - set firewall zone svc from inf firewall ipv6-name 'INFv6-to-LANv6'
+    save: true
+
+### INF to STO ###
+- name: Setup INF to STO
+  vyos.vyos.vyos_config:
+    lines:
+      # Drop all traffic by default
+      - set firewall ipv4 name INFv4-to-STOv4 default-action 'drop'
+      - set firewall ipv4 name INFv4-to-STOv4 default-log
+      - set firewall ipv6 name INFv6-to-STOv6 default-action 'drop'
+      - set firewall ipv6 name INFv6-to-STOv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name INFv4-to-STOv4 rule 1 action 'accept'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 1 state established
+      - set firewall ipv6 name INFv6-to-STOv6 rule 1 action 'accept'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name INFv4-to-STOv4 rule 2 action 'drop'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 2 state invalid
+      - set firewall ipv6 name INFv6-to-STOv6 rule 2 action 'drop'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name INFv4-to-STOv4 rule 3 action 'drop'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 3 state related
+      - set firewall ipv6 name INFv6-to-STOv6 rule 3 action 'drop'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 3 state related
+      # ICMP
+      - set firewall ipv4 name INFv4-to-STOv4 rule 100 action 'accept'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 100 protocol 'icmp'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 100 action 'accept'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 100 protocol 'ipv6-icmp'
+      # Allow HTTP/HTTPS
+      - set firewall ipv4 name INFv4-to-STOv4 rule 200 action 'accept'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 200 destination port '443'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 200 protocol 'tcp'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 200 action 'accept'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 200 destination port '443'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 200 protocol 'tcp'
+      # SSH
+      - set firewall ipv4 name INFv4-to-STOv4 rule 800 action 'accept'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 800 destination port '22,2222'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 800 protocol 'tcp'
+      - set firewall ipv6 name INFv6-to-STOv4 rule 800 action 'accept'
+      - set firewall ipv6 name INFv6-to-STOv4 rule 800 destination port '22,2222'
+      - set firewall ipv6 name INFv6-to-STOv4 rule 800 protocol 'tcp'
+      # Postgres
+      - set firewall ipv4 name INFv4-to-STOv4 rule 5432 action 'accept'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 5432 destination port '5432'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 5432 protocol 'tcp'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 5432 action 'accept'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 5432 destination port '5432'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 5432 protocol 'tcp'
+      # S3
+      - set firewall ipv4 name INFv4-to-STOv4 rule 9000 action 'accept'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 9000 destination port '9000'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 9000 protocol 'tcp'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 9000 action 'accept'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 9000 destination port '9000'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 9000 protocol 'tcp'
+      # Metrics
+      - set firewall ipv4 name INFv4-to-STOv4 rule 9187 action 'accept'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 9187 destination port '9187'
+      - set firewall ipv4 name INFv4-to-STOv4 rule 9187 protocol 'tcp'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 9187 action 'accept'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 9187 destination port '9187'
+      - set firewall ipv6 name INFv6-to-STOv6 rule 9187 protocol 'tcp'
+      # Ipv4
+      - set firewall zone sto from inf firewall name 'INFv4-to-STOv4'
+      # Ipv6
+      - set firewall zone sto from inf firewall ipv6-name 'INFv6-to-STOv6'
+    save: true
+
+### LANs to INF ###
+- name: Setup LANs to INF
+  vyos.vyos.vyos_config:
+    lines:
+      # Drop all traffic by default
+      - set firewall ipv4 name LANv4-to-INFv4 default-action 'drop'
+      - set firewall ipv4 name LANv4-to-INFv4 default-log
+      - set firewall ipv6 name LANv6-to-INFv6 default-action 'drop'
+      - set firewall ipv6 name LANv6-to-INFv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name LANv4-to-INFv4 rule 1 action 'accept'
+      - set firewall ipv4 name LANv4-to-INFv4 rule 1 state established
+      - set firewall ipv6 name LANv6-to-INFv6 rule 1 action 'accept'
+      - set firewall ipv6 name LANv6-to-INFv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name LANv4-to-INFv4 rule 2 action 'drop'
+      - set firewall ipv4 name LANv4-to-INFv4 rule 2 state invalid
+      - set firewall ipv6 name LANv6-to-INFv6 rule 2 action 'drop'
+      - set firewall ipv6 name LANv6-to-INFv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name LANv4-to-INFv4 rule 3 action 'drop'
+      - set firewall ipv4 name LANv4-to-INFv4 rule 3 state related
+      - set firewall ipv6 name LANv6-to-INFv6 rule 3 action 'drop'
+      - set firewall ipv6 name LANv6-to-INFv6 rule 3 state related
+      # HTTP/HTTPS
+      - set firewall ipv4 name LANv4-to-INFv4 rule 200 action 'accept'
+      - set firewall ipv4 name LANv4-to-INFv4 rule 200 destination port '80,443'
+      - set firewall ipv4 name LANv4-to-INFv4 rule 200 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-INFv6 rule 200 action 'accept'
+      - set firewall ipv6 name LANv6-to-INFv6 rule 200 destination port '80,443'
+      - set firewall ipv6 name LANv6-to-INFv6 rule 200 protocol 'tcp'
+      # SSH
+      - set firewall ipv4 name LANv4-to-INFv4 rule 800 action 'accept'
+      - set firewall ipv4 name LANv4-to-INFv4 rule 800 destination port '2222'
+      - set firewall ipv4 name LANv4-to-INFv4 rule 800 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-INFv6 rule 800 action 'accept'
+      - set firewall ipv6 name LANv6-to-INFv6 rule 800 destination port '2222'
+      - set firewall ipv6 name LANv6-to-INFv6 rule 800 protocol 'tcp'
+      # Ipv4
+      - set firewall zone inf from svc firewall name 'LANv4-to-INFv4'
+      - set firewall zone inf from sto firewall name 'LANv4-to-INFv4'
+      # Ipv6
+      - set firewall zone inf from svc firewall ipv6-name 'LANv6-to-INFv6'
+      - set firewall zone inf from sto firewall ipv6-name 'LANv6-to-INFv6'
+    save: true
+
+### LANs to STO ###
+- name: Setup LANs to STO
+  vyos.vyos.vyos_config:
+    lines:
+      ### LANs to STO ###
+      # Drop all traffic by default
+      - set firewall ipv4 name LANv4-to-STOv4 default-action 'drop'
+      - set firewall ipv4 name LANv4-to-STOv4 default-log
+      - set firewall ipv6 name LANv6-to-STOv6 default-action 'drop'
+      - set firewall ipv6 name LANv6-to-STOv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name LANv4-to-STOv4 rule 1 action 'accept'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 1 state established
+      - set firewall ipv6 name LANv6-to-STOv6 rule 1 action 'accept'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name LANv4-to-STOv4 rule 2 action 'drop'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 2 state invalid
+      - set firewall ipv6 name LANv6-to-STOv6 rule 2 action 'drop'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name LANv4-to-STOv4 rule 3 action 'drop'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 3 state related
+      - set firewall ipv6 name LANv6-to-STOv6 rule 3 action 'drop'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 3 state related
+      # ICMP
+      - set firewall ipv4 name LANv4-to-STOv4 rule 100 action 'accept'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 100 protocol 'icmp'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 100 icmp type-name 'echo-request'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 100 action 'accept'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 100 protocol 'ipv6-icmp'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 100 icmpv6 type-name 'echo-request'
+      # Allow Postgres
+      - set firewall ipv4 name LANv4-to-STOv4 rule 5432 action 'accept'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 5432 destination port '5432'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 5432 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 5432 action 'accept'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 5432 destination port '5432'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 5432 protocol 'tcp'
+      # Allow S3
+      - set firewall ipv4 name LANv4-to-STOv4 rule 9000 action 'accept'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 9000 destination port '9000'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 9000 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 9000 action 'accept'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 9000 destination port '9000'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 9000 protocol 'tcp'
+      # Ipv4
+      - set firewall zone sto from svc firewall name 'LANv4-to-STOv4'
+      # Ipv6
+      - set firewall zone sto from svc firewall ipv6-name 'LANv6-to-STOv6'
+    save: true
+
+### STO to LANs ###
+- name: Setup STO to LANs
+  vyos.vyos.vyos_config:
+    lines:
+      ### STO to LANs ###
+      # Drop all traffic by default
+      - set firewall ipv4 name STOv4-to-LANv4 default-action 'drop'
+      - set firewall ipv4 name STOv4-to-LANv4 default-log
+      - set firewall ipv6 name STOv6-to-LANv6 default-action 'drop'
+      - set firewall ipv6 name STOv6-to-LANv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name STOv4-to-LANv4 rule 1 action 'accept'
+      - set firewall ipv4 name STOv4-to-LANv4 rule 1 state established
+      - set firewall ipv6 name STOv6-to-LANv6 rule 1 action 'accept'
+      - set firewall ipv6 name STOv6-to-LANv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name STOv4-to-LANv4 rule 2 action 'drop'
+      - set firewall ipv4 name STOv4-to-LANv4 rule 2 state invalid
+      - set firewall ipv6 name STOv6-to-LANv6 rule 2 action 'drop'
+      - set firewall ipv6 name STOv6-to-LANv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name STOv4-to-LANv4 rule 3 action 'drop'
+      - set firewall ipv4 name STOv4-to-LANv4 rule 3 state related
+      - set firewall ipv6 name STOv6-to-LANv6 rule 3 action 'drop'
+      - set firewall ipv6 name STOv6-to-LANv6 rule 3 state related
+      # Ipv4
+      - set firewall zone svc from sto firewall name 'STOv4-to-LANv4'
+      # Ipv6
+      - set firewall zone svc from sto firewall ipv6-name 'STOv6-to-LANv6'
+    save: true
+
+### VPNs ###
+### VPN to INF ###
+- name: Setup VPN to INF Rules
+  vyos.vyos.vyos_config:
+    lines:
+      # Accept all traffic by default
+      - set firewall ipv4 name VPNv4-to-INFv4 default-action 'drop'
+      - set firewall ipv4 name VPNv4-to-INFv4 default-log
+      - set firewall ipv6 name VPNv6-to-INFv6 default-action 'drop'
+      - set firewall ipv6 name VPNv6-to-INFv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 1 action 'accept'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 1 state established
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 1 action 'accept'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 2 action 'drop'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 2 state invalid
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 2 action 'drop'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 3 action 'drop'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 3 state related
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 3 action 'drop'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 3 state related
+      # ICMP
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 100 action 'accept'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 100 protocol 'icmp'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 100 icmp type-name 'echo-request'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 100 action 'accept'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 100 protocol 'ipv6-icmp'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 100 icmpv6 type-name 'echo-request'
+      # Allow HTTP/HTTPS
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 200 action 'accept'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 200 destination port '80,443,6443'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 200 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 200 action 'accept'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 200 destination port '80,443,6443'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 200 protocol 'tcp'
+      # SSH
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 800 action 'accept'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 800 destination port '22,2222'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 800 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 800 action 'accept'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 800 destination port '22,2222'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 800 protocol 'tcp'
+      # Talos
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 50000 action 'accept'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 50000 destination port '50000'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 50000 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 50000 action 'accept'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 50000 destination port '50000'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 50000 protocol 'tcp'
+      # Ipv4
+      - set firewall zone inf from wg01 firewall name 'VPNv4-to-INFv4'
+      - set firewall zone inf from vpn firewall name 'VPNv4-to-INFv4'
+      # Ipv6
+      - set firewall zone inf from wg01 firewall ipv6-name 'VPNv6-to-INFv6'
+      - set firewall zone inf from vpn firewall ipv6-name 'VPNv6-to-INFv6'
+    save: true
+
+### INF to VPN ###
+- name: Setup INF to VPN Rules
+  vyos.vyos.vyos_config:
+    lines:
+      ### INF to VPN ###
+      # Drop all traffic by default
+      - set firewall ipv4 name INFv4-to-VPNv4 default-action 'drop'
+      - set firewall ipv4 name INFv4-to-VPNv4 default-log
+      # Accept established connections
+      - set firewall ipv4 name INFv4-to-VPNv4 rule 1 action 'accept'
+      - set firewall ipv4 name INFv4-to-VPNv4 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name INFv4-to-VPNv4 rule 2 action 'drop'
+      - set firewall ipv4 name INFv4-to-VPNv4 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name INFv4-to-VPNv4 rule 3 action 'drop'
+      - set firewall ipv4 name INFv4-to-VPNv4 rule 3 state related
+      # Assign the rules
+      - set firewall zone wg01 from inf firewall name 'INFv4-to-VPNv4'
+      - set firewall zone vpn from inf firewall name 'INFv4-to-VPNv4'
+    save: true
+
+### VPN to STO ###
+- name: Setup VPN to STO
+  vyos.vyos.vyos_config:
+    lines:
+      ### VPN to STO ###
+      # Drop all traffic by default
+      - set firewall ipv4 name VPNv4-to-STOv4 default-action 'drop'
+      - set firewall ipv4 name VPNv4-to-STOv4 default-log
+      - set firewall ipv6 name VPNv6-to-STOv6 default-action 'drop'
+      - set firewall ipv6 name VPNv6-to-STOv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 1 action 'accept'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 1 state established
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 1 action 'accept'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 2 action 'drop'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 2 state invalid
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 2 action 'drop'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 3 action 'drop'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 3 state related
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 3 action 'drop'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 3 state related
+      # ICMP
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 100 action 'accept'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 100 protocol 'icmp'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 100 icmp type-name 'echo-request'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 100 action 'accept'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 100 protocol 'ipv6-icmp'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 100 icmpv6 type-name 'echo-request'
+      # Allow HTTP/HTTPS
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 200 action 'accept'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 200 destination port '443'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 200 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 200 action 'accept'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 200 destination port '443'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 200 protocol 'tcp'
+      # SSH
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 800 action 'accept'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 800 destination port '22,2222'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 800 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 800 action 'accept'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 800 destination port '22,2222'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 800 protocol 'tcp'
+      # Postgres
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 5432 action 'accept'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 5432 destination port '5432'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 5432 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 5432 action 'accept'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 5432 destination port '5432'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 5432 protocol 'tcp'
+      # Allow S3
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 9000 action 'accept'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 9000 destination port '9000'
+      - set firewall ipv4 name VPNv4-to-STOv4 rule 9000 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 9000 action 'accept'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 9000 destination port '9000'
+      - set firewall ipv6 name VPNv6-to-STOv6 rule 9000 protocol 'tcp'
+      # Ipv4
+      - set firewall zone sto from wg01 firewall name 'VPNv4-to-STOv4'
+      - set firewall zone sto from vpn firewall name 'VPNv4-to-STOv4'
+      # Ipv6
+      - set firewall zone sto from wg01 firewall ipv6-name 'VPNv6-to-STOv6'
+      - set firewall zone sto from vpn firewall name 'VPNv4-to-STOv4'
+    save: true
+
+### STO to VPN ###
+- name: Setup STO to VPN
+  vyos.vyos.vyos_config:
+    lines:
+      ### STO to VPN ###
+      # Drop all traffic by default
+      - set firewall ipv4 name STOv4-to-VPNv4 default-action 'drop'
+      - set firewall ipv4 name STOv4-to-VPNv4 default-log
+      - set firewall ipv6 name STOv6-to-VPNv6 default-action 'drop'
+      - set firewall ipv6 name STOv6-to-VPNv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name STOv4-to-VPNv4 rule 1 action 'accept'
+      - set firewall ipv4 name STOv4-to-VPNv4 rule 1 state established
+      - set firewall ipv6 name STOv6-to-VPNv6 rule 1 action 'accept'
+      - set firewall ipv6 name STOv6-to-VPNv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name STOv4-to-VPNv4 rule 2 action 'drop'
+      - set firewall ipv4 name STOv4-to-VPNv4 rule 2 state invalid
+      - set firewall ipv6 name STOv6-to-VPNv6 rule 2 action 'drop'
+      - set firewall ipv6 name STOv6-to-VPNv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name STOv4-to-VPNv4 rule 3 action 'drop'
+      - set firewall ipv4 name STOv4-to-VPNv4 rule 3 state related
+      - set firewall ipv6 name STOv6-to-VPNv6 rule 3 action 'drop'
+      - set firewall ipv6 name STOv6-to-VPNv6 rule 3 state related
+      # Ipv4
+      - set firewall zone wg01 from sto firewall name 'STOv4-to-VPNv4'
+      - set firewall zone vpn from sto firewall name 'STOv4-to-VPNv4'
+      # Ipv6
+      - set firewall zone wg01 from sto firewall ipv6-name 'STOv6-to-VPNv6'
+      - set firewall zone vpn from sto firewall ipv6-name 'STOv6-to-VPNv6'
+    save: true
+
+### VPN to LANs
+- name: Setup VPN to LANs
+  vyos.vyos.vyos_config:
+    lines:
+      ### VPN to LANs ###
+      # Drop all traffic by default
+      - set firewall ipv4 name VPNv4-to-LANv4 default-action 'drop'
+      - set firewall ipv4 name VPNv4-to-LANv4 default-log
+      - set firewall ipv6 name VPNv6-to-LANv6 default-action 'drop'
+      - set firewall ipv6 name VPNv6-to-LANv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 1 action 'accept'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 1 state established
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 1 action 'accept'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 2 action 'drop'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 2 state invalid
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 2 action 'drop'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 3 action 'drop'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 3 state related
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 3 action 'drop'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 3 state related
+      # ICMP
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 100 action 'accept'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 100 protocol 'icmp'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 100 icmp type-name 'echo-request'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 100 action 'accept'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 100 protocol 'ipv6-icmp'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 100 icmpv6 type-name 'echo-request'
+      # Allow HTTP/HTTPS
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 200 action 'accept'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 200 destination port '80,443,6443'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 200 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 200 action 'accept'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 200 destination port '80,443,6443'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 200 protocol 'tcp'
+      # SSH
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 800 action 'accept'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 800 destination port '22,2222'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 800 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 800 action 'accept'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 800 destination port '22,2222'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 800 protocol 'tcp'
+      # Ipv4
+      - set firewall zone svc from wg01 firewall name 'VPNv4-to-LANv4'
+      - set firewall zone svc from vpn firewall name 'VPNv4-to-LANv4'
+      # Ipv6
+      - set firewall zone svc from wg01 firewall ipv6-name 'VPNv6-to-LANv6'
+      - set firewall zone svc from vpn firewall ipv6-name 'VPNv6-to-LANv6'
+    save: true
+
+### LANs to VPN ###
+- name: Setup LANs to VPN
+  vyos.vyos.vyos_config:
+    lines:
+      # Drop all traffic by default
+      - set firewall ipv4 name LANv4-to-VPNv4 default-action 'drop'
+      - set firewall ipv4 name LANv4-to-VPNv4 default-log
+      - set firewall ipv6 name LANv6-to-VPNv6 default-action 'drop'
+      - set firewall ipv6 name LANv6-to-VPNv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name LANv4-to-VPNv4 rule 1 action 'accept'
+      - set firewall ipv4 name LANv4-to-VPNv4 rule 1 state established
+      - set firewall ipv6 name LANv6-to-VPNv6 rule 1 action 'accept'
+      - set firewall ipv6 name LANv6-to-VPNv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name LANv4-to-VPNv4 rule 2 action 'drop'
+      - set firewall ipv4 name LANv4-to-VPNv4 rule 2 state invalid
+      - set firewall ipv6 name LANv6-to-VPNv6 rule 2 action 'drop'
+      - set firewall ipv6 name LANv6-to-VPNv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name LANv4-to-VPNv4 rule 3 action 'drop'
+      - set firewall ipv4 name LANv4-to-VPNv4 rule 3 state related
+      - set firewall ipv6 name LANv6-to-VPNv6 rule 3 action 'drop'
+      - set firewall ipv6 name LANv6-to-VPNv6 rule 3 state related
+      # Ipv4
+      - set firewall zone wg01 from svc firewall name 'LANv4-to-VPNv4'
+      - set firewall zone vpn from svc firewall name 'LANv4-to-VPNv4'
+      # Ipv6
+      - set firewall zone wg01 from svc firewall ipv6-name 'LANv6-to-VPNv6'
+      - set firewall zone vpn from svc firewall ipv6-name 'LANv6-to-VPNv6'
+    save: true
+
+### DMZ ###
+### WAN to DMZ ###
+- name: Setup WAN to DMZ Rules
+  vyos.vyos.vyos_config:
+    lines:
+      ### WAN to DMZ ###
+      # Drop all traffic by default
+      - set firewall ipv4 name WANv4-to-DMZv4 default-action 'drop'
+      - set firewall ipv4 name WANv4-to-DMZv4 default-log
+      - set firewall ipv6 name WANv6-to-DMZv6 default-action 'drop'
+      - set firewall ipv6 name WANv6-to-DMZv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name WANv4-to-DMZv4 rule 1 action 'accept'
+      - set firewall ipv4 name WANv4-to-DMZv4 rule 1 state established
+      - set firewall ipv6 name WANv6-to-DMZv6 rule 1 action 'accept'
+      - set firewall ipv6 name WANv6-to-DMZv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name WANv4-to-DMZv4 rule 2 action 'drop'
+      - set firewall ipv4 name WANv4-to-DMZv4 rule 2 state invalid
+      - set firewall ipv6 name WANv6-to-DMZv6 rule 2 action 'drop'
+      - set firewall ipv6 name WANv6-to-DMZv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name WANv4-to-DMZv4 rule 3 action 'drop'
+      - set firewall ipv4 name WANv4-to-DMZv4 rule 3 state related
+      - set firewall ipv6 name WANv6-to-DMZv6 rule 3 action 'drop'
+      - set firewall ipv6 name WANv6-to-DMZv6 rule 3 state related
+      # Assign the rules
+      - set firewall zone dmz from wan firewall name 'WANv4-to-DMZv4'
+      - set firewall zone dmz from wan firewall ipv6-name 'WANv6-to-DMZv6'
+    save: true
+
+### DMZ to LOCAL ###
+- name: Setup DMZ to LOCAL Rules
+  vyos.vyos.vyos_config:
+    lines:
+      ### DMZ to LOCAL ###
+      # Drop all traffic by default
+      - set firewall ipv4 name DMZv4-to-LOCALv4 default-action 'drop'
+      - set firewall ipv4 name DMZv4-to-LOCALv4 default-log
+      - set firewall ipv6 name DMZv6-to-LOCALv6 default-action 'drop'
+      - set firewall ipv6 name DMZv6-to-LOCALv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name DMZv4-to-LOCALv4 rule 1 action 'accept'
+      - set firewall ipv4 name DMZv4-to-LOCALv4 rule 1 state established
+      - set firewall ipv6 name DMZv6-to-LOCALv6 rule 1 action 'accept'
+      - set firewall ipv6 name DMZv6-to-LOCALv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name DMZv4-to-LOCALv4 rule 2 action 'drop'
+      - set firewall ipv4 name DMZv4-to-LOCALv4 rule 2 state invalid
+      - set firewall ipv6 name DMZv6-to-LOCALv6 rule 2 action 'drop'
+      - set firewall ipv6 name DMZv6-to-LOCALv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name DMZv4-to-LOCALv4 rule 3 action 'drop'
+      - set firewall ipv4 name DMZv4-to-LOCALv4 rule 3 state related
+      - set firewall ipv6 name DMZv6-to-LOCALv6 rule 3 action 'drop'
+      - set firewall ipv6 name DMZv6-to-LOCALv6 rule 3 state related
+      # DHCP
+      - set firewall ipv4 name DMZv4-to-LOCALv4 rule 700 action 'accept'
+      - set firewall ipv4 name DMZv4-to-LOCALv4 rule 700 destination port '67,68'
+      - set firewall ipv4 name DMZv4-to-LOCALv4 rule 700 protocol 'udp'
+      - set firewall ipv6 name DMZv6-to-LOCALv6 rule 700 action 'accept'
+      - set firewall ipv6 name DMZv6-to-LOCALv6 rule 700 destination port '67,68'
+      - set firewall ipv6 name DMZv6-to-LOCALv6 rule 700 protocol 'udp'
+      # Assign the rules
+      - set firewall zone local from dmz firewall name 'DMZv4-to-LOCALv4'
+      - set firewall zone local from dmz firewall ipv6-name 'DMZv6-to-LOCALv6'
+    save: true
+
+### LOCAL to DMZ ###
+- name: Setup LOCAL to DMZ Rules
+  vyos.vyos.vyos_config:
+    lines:
+      ### LOCAL to DMZ ###
+      # Drop all traffic by default
+      - set firewall ipv4 name LOCALv4-to-DMZv4 default-action 'drop'
+      - set firewall ipv4 name LOCALv4-to-DMZv4 default-log
+      - set firewall ipv6 name LOCALv6-to-DMZv6 default-action 'drop'
+      - set firewall ipv6 name LOCALv6-to-DMZv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name LOCALv4-to-DMZv4 rule 1 action 'accept'
+      - set firewall ipv4 name LOCALv4-to-DMZv4 rule 1 state established
+      - set firewall ipv6 name LOCALv6-to-DMZv6 rule 1 action 'accept'
+      - set firewall ipv6 name LOCALv6-to-DMZv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name LOCALv4-to-DMZv4 rule 2 action 'drop'
+      - set firewall ipv4 name LOCALv4-to-DMZv4 rule 2 state invalid
+      - set firewall ipv6 name LOCALv6-to-DMZv6 rule 2 action 'drop'
+      - set firewall ipv6 name LOCALv6-to-DMZv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name LOCALv4-to-DMZv4 rule 3 action 'drop'
+      - set firewall ipv4 name LOCALv4-to-DMZv4 rule 3 state related
+      - set firewall ipv6 name LOCALv6-to-DMZv6 rule 3 action 'drop'
+      - set firewall ipv6 name LOCALv6-to-DMZv6 rule 3 state related
+      # Assign the rules
+      - set firewall zone dmz from local firewall name 'LOCALv4-to-DMZv4'
+      - set firewall zone dmz from local firewall ipv6-name 'LOCALv6-to-DMZv6'
+    save: true
+
+### DMZ to WAN ###
+- name: Setup DMZ to WAN Rules
+  vyos.vyos.vyos_config:
+    lines:
+      ### DMZ to WAN ###
+      # Drop all traffic by default
+      - set firewall ipv4 name DMZv4-to-WANv4 default-action 'drop'
+      - set firewall ipv4 name DMZv4-to-WANv4 default-log
+      - set firewall ipv6 name DMZv6-to-WANv6 default-action 'drop'
+      - set firewall ipv6 name DMZv6-to-WANv6 default-log
+      # Accept established connections
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 1 action 'accept'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 1 state established
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 1 action 'accept'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 1 state established
+      # Drop invalid connections
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 2 action 'drop'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 2 state invalid
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 2 action 'drop'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 2 state invalid
+      # Drop related connections
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 3 action 'drop'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 3 state related
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 3 action 'drop'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 3 state related
+      # HTTP/HTTPS
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 200 action 'accept'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 200 destination port '80,443'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 200 protocol 'tcp'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 200 action 'accept'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 200 destination port '80,443'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 200 protocol 'tcp'
+      # FTP
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 300 action 'accept'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 300 destination port '20,21'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 300 protocol 'tcp'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 300 action 'accept'
+      # NTP
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 400 action 'accept'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 400 destination port '123'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 400 protocol 'udp'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 400 action 'accept'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 400 destination port '123'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 400 protocol 'udp'
+      # DNS
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 600 action 'accept'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 600 destination port '53'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 600 protocol 'udp'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 600 action 'accept'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 600 destination port '53'
+      - set firewall ipv6 name DMZv6-to-WANv6 rule 600 protocol 'udp'
+      # SSH
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 800 action 'accept'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 800 destination port '22'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 800 protocol 'tcp'
+      # Assign the rules
+      - set firewall zone wan from dmz firewall name 'DMZv4-to-WANv4'
+      - set firewall zone wan from dmz firewall ipv6-name 'DMZv6-to-WANv6'
+    save: true

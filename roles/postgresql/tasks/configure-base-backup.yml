@@ -1,0 +1,21 @@
+---
+- name: Copy base backup script to remote host
+  ansible.builtin.template:
+    src: "base_backup.sh.j2"
+    dest: /usr/local/bin/base_backup.sh
+    mode: '0750'
+    owner: postgres
+    group: postgres
+  become: true
+  become_user: root
+
+- name: Setup cron job for base backup
+  ansible.builtin.cron:
+    name: "PostgreSQL Base Backup"
+    user: postgres
+    minute: "0"
+    hour: "2"
+    job: "/usr/local/bin/base_backup.sh >> /var/log/postgresql/base_backup.log 2>&1"
+    state: present
+  become: true
+  become_user: root

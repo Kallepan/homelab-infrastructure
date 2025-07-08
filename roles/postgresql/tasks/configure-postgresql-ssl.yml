@@ -1,0 +1,55 @@
+---
+- name: Copy server.crt
+  ansible.builtin.copy:
+    src: "{{ postgresql_certs_cert }}"
+    dest: "{{ postgresql_config_dir }}/server.crt"
+    mode: "0600"
+    owner: postgres
+    group: postgres
+  become: true
+  become_user: root
+
+- name: Copy root.crt
+  ansible.builtin.copy:
+    src: "{{ postgresql_certs_ca }}"
+    dest: "{{ postgresql_config_dir }}/root.crt"
+    mode: "0644"
+    owner: postgres
+    group: postgres
+  become: true
+  become_user: root
+
+- name: Copy server.key
+  ansible.builtin.copy:
+    src: "{{ postgresql_certs_key }}"
+    dest: "{{ postgresql_config_dir }}/server.key"
+    mode: "0600"
+    owner: postgres
+    group: postgres
+  become: true
+  become_user: root
+
+- name: Ensure postgresql.conf is configured for SSL
+  ansible.builtin.lineinfile:
+    dest: "{{ postgresql_config_dir }}/postgresql.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+    mode: "0644"
+  loop:
+    - regexp: "^#?ssl ="
+      line: "ssl = on"
+    - regexp: "^#?ssl_cert_file ="
+      line: "ssl_cert_file = '{{ postgresql_config_dir }}/server.crt'"
+    - regexp: "^#?ssl_key_file ="
+      line: "ssl_key_file = '{{ postgresql_config_dir }}/server.key'"
+    - regexp: "^#?ssl_ca_file ="
+      line: "ssl_ca_file = '{{ postgresql_config_dir }}/root.crt'"
+    - regexp: "^#?ssl_ciphers ="
+      line: "ssl_ciphers = 'HIGH:!aNULL:!eNULL:!MD5:!3DES'"
+    - regexp: "^#?ssl_prefer_server_ciphers ="
+      line: "ssl_prefer_server_ciphers = on"
+  notify:
+    - Restart PostgreSQL
+  become: true
+  become_user: root

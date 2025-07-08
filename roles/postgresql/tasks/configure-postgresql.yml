@@ -1,0 +1,54 @@
+---
+- name: Set PostgreSQL version fact
+  ansible.builtin.set_fact:
+    postgresql_config_dir: "/etc/postgresql/{{ postgresql_version }}/main"
+
+- name: Check if pga_hba.conf.bak exists
+  ansible.builtin.stat:
+    path: "{{ postgresql_config_dir }}/pg_hba.conf.bak"
+  register: pga_hba_conf_bak
+
+- name: Backup pga_hba.conf file
+  ansible.builtin.copy:
+    src: "{{ postgresql_config_dir }}/pg_hba.conf"
+    dest: "{{ postgresql_config_dir }}/pg_hba.conf.bak"
+    mode: '0644'
+    owner: postgres
+    group: postgres
+    remote_src: true
+  when: 
+    - ansible_os_family == 'Debian'
+    - not pga_hba_conf_bak.stat.exists
+  become: true
+  become_user: root
+
+- name: Copy pg_hba.conf template
+  ansible.builtin.template:
+    src: pg_hba.conf.j2
+    dest: "{{ postgresql_config_dir }}/pg_hba.conf"
+    owner: postgres
+    group: postgres
+    mode: '0644'
+  when: ansible_os_family == 'Debian'
+  become: true
+  become_user: root
+  notify:
+    - Restart PostgreSQL
+
+- meta: flush_handlers
+
+- name: Allow PostgreSQL to listen on all interfaces
+  ansible.builtin.command:
+    cmd: |
+      su - postgres -c "psql -c \"ALTER SYSTEM SET listen_addresses TO '*';\""
+  become: true
+  become_user: root
+  notify:
+    - Restart PostgreSQL
+
+- name: Set postgres user password
+  ansible.builtin.command:
+    cmd: |
+      su - postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD '{{ lookup('env', 'POSTGRESQL_PASSWORD') }}';\""
+  become: true
+  become_user: root

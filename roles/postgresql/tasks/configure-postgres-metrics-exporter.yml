@@ -1,0 +1,97 @@
+---
+- name: Ensure tar is installed
+  ansible.builtin.package:
+    name: tar
+    state: present
+  become: true
+  become_user: root
+
+- name: Create PostgreSQL exporter user
+  ansible.builtin.command:
+    cmd: |
+      su - postgres -c "psql -c \"CREATE USER {{ postgresql_exporter_user }} WITH PASSWORD '{{ lookup('env', 'POSTGRES_EXPORTER_PASSWORD') }}';\" && touch /var/lib/postgresql/{{ postgresql_version }}/.{{ postgresql_exporter_user }}_created"
+    creates: "/var/lib/postgresql/{{ postgresql_version }}/.{{ postgresql_exporter_user }}_created"
+  become: true
+  become_user: root
+  register: create_user_result
+  failed_when: 
+    - create_user_result.rc != 0
+    - "'already exists' not in create_user_result.stderr"
+  changed_when: "'already exists' not in create_user_result.stderr"
+
+- name: Grant PostgreSQL exporter user permissions
+  ansible.builtin.command:
+    cmd: |
+      su - postgres -c "psql -c \"GRANT CONNECT ON DATABASE postgres TO {{ postgresql_exporter_user }};\" && psql -c \"GRANT pg_monitor TO {{ postgresql_exporter_user }};\" && touch /var/lib/postgresql/{{ postgresql_version }}/.{{ postgresql_exporter_user }}_permissions_granted"
+    creates: "/var/lib/postgresql/{{ postgresql_version }}/.{{ postgresql_exporter_user }}_permissions_granted"
+  become: true
+  become_user: root
+
+- name: Ensure exporter group exists
+  ansible.builtin.group:
+    name: "{{ postgresql_exporter_user }}"
+    state: present
+  become: true
+  become_user: root
+
+- name: Ensure exporter user exists
+  ansible.builtin.user:
+    name: "{{ postgresql_exporter_user }}"
+    state: present
+    system: true
+    shell: /usr/sbin/nologin
+    groups: "{{ postgresql_exporter_user }}"
+    append: true
+  become: true
+  become_user: root
+
+- name: Download PostgreSQL exporter
+  ansible.builtin.get_url:
+    url: "{{ postgresql_exporter_url }}"
+    dest: "/tmp/postgres_exporter.tar.gz"
+    mode: '0644'
+  become: true
+  become_user: root
+
+- name: Extract PostgreSQL exporter
+  ansible.builtin.unarchive:
+    src: "/tmp/postgres_exporter.tar.gz"
+    dest: "/usr/local/bin"
+    remote_src: true
+    extra_opts:
+      - --strip-components=1
+  become: true
+  become_user: root
+
+- name: Set permissions for PostgreSQL exporter binary
+  ansible.builtin.file:
+    path: "/usr/local/bin/postgres_exporter"
+    owner: "{{ postgresql_exporter_user }}"
+    group: "{{ postgresql_exporter_user }}"
+    mode: '0755'
+  become: true
+  become_user: root
+
+- name: Create systemd service file for PostgreSQL exporter
+  ansible.builtin.template:
+    src: "postgres_exporter.service.j2"
+    dest: "/etc/systemd/system/postgres_exporter.service"
+    mode: '0644'
+  become: true
+  become_user: root
+  vars:
+    postgresql_exporter_password: "{{ lookup('env', 'POSTGRES_EXPORTER_PASSWORD') }}"
+
+- name: Reload systemd to recognize the new PostgreSQL exporter service
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+  become_user: root
+
+- name: Ensure PostgreSQL exporter service is enabled and started
+  ansible.builtin.systemd:
+    name: postgres_exporter
+    state: started
+    enabled: true
+  become: true
+  become_user: root

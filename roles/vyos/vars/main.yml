@@ -1,0 +1,303 @@
+vyos_hostname: "vyos"
+vyos_timezone: Europe/Berlin
+# chore: update the latest image URL
+# images: https://github.com/vyos/vyos-rolling-nightly-builds/releases/
+vyos_latest_image_url: https://github.com/vyos/vyos-nightly-build/releases/download/2025.05.24-0019-rolling/vyos-2025.05.24-0019-rolling-generic-amd64.iso
+vyos_is_vm: true
+
+vyos_interfaces:
+  - name: eth1
+    ipv4: "10.10.10.1/24"
+    ipv6: "fd00:10:10::1/64"
+    description: "INF"
+    mss: 1400
+  - name: eth2
+    ipv4: "10.10.20.1/24"
+    ipv6: "fd00:10:20::1/64"
+    description: "SVC"
+  - name: eth3
+    ipv4: "10.10.30.1/24"
+    ipv6: "fd00:10:30::1/64"
+    description: "STO"
+  - name: eth4
+    ipv4: "10.10.100.1/24"
+    ipv6: "fd00:10:100::1/64"
+    description: "VPN"
+  - name: eth5
+    ipv4: "172.16.99.1/24"
+    ipv6: "fd00:16:99::1/64"
+    description: "DMZ"
+
+vyos_dhcpv4_configs:
+  - network_name: "INF"
+    subnet: "10.10.10.0/24"
+    subnet_id: "1"
+    ranges:
+      - id: "0"
+        start: "10.10.10.201"
+        end: "10.10.10.250"
+    domain_name: "home.arpa"
+    default_router: "10.10.10.1"
+    dns_server: "10.10.10.1"
+    lease_time: "86400"
+    tftp_server_name: "10.10.10.1"
+    static_mappings:
+      - mac: "BC:24:11:14:68:AC"
+        ip: "10.10.10.20"
+        hostname: "infra-control-1"
+      - mac: "BC:24:11:91:D9:54"
+        ip: "10.10.10.21"
+        hostname: "infra-control-2"
+      - mac: "BC:24:11:B4:FE:E5"
+        ip: "10.10.10.22"
+        hostname: "infra-control-3"
+      - mac: "BC:24:11:11:EF:38"
+        ip: "10.10.10.30"
+        hostname: "infra-worker-1"
+      - mac: "BC:24:11:1D:1E:DD"
+        ip: "10.10.10.31"
+        hostname: "infra-worker-2"
+      - mac: "BC:24:11:A1:73:97"
+        ip: "10.10.10.32"
+        hostname: "infra-worker-3"
+      - mac: "BC:24:11:5A:BC:52"
+        ip: "10.10.10.10"
+        hostname: "rancher"
+  - network_name: "SVC"
+    subnet: "10.10.20.0/24"
+    subnet_id: "2"
+    ranges:
+      - id: "0"
+        start: "10.10.20.201"
+        end: "10.10.20.250"
+    domain_name: "home.arpa"
+    default_router: "10.10.20.1"
+    dns_server: "10.10.20.1"
+    lease_time: "86400"
+    tftp_server_name: "10.10.20.1"
+    static_mappings:
+      - mac: "BC:24:11:CA:A2:93"
+        ip: "10.10.20.10"
+        hostname: "docker"
+      - mac: "BC:24:11:46:F3:96"
+        ip: "10.10.20.20"
+        hostname: "svc-control-1"
+      - mac: "BC:24:11:8C:F6:7A"
+        ip: "10.10.20.30"
+        hostname: "svc-worker-1"
+  - network_name: "STO"
+    subnet: "10.10.30.0/24"
+    subnet_id: "3"
+    ranges:
+      - id: "0"
+        start: "10.10.30.201"
+        end: "10.10.30.250"
+    domain_name: "home.arpa"
+    default_router: "10.10.30.1"
+    dns_server: "10.10.30.1"
+    lease_time: "86400"
+    tftp_server_name: "10.10.30.1"
+    static_mappings:
+      - mac: "BC:24:11:76:48:09"
+        ip: "10.10.30.10"
+        hostname: "storage"
+  - network_name: "VPN"
+    subnet: "10.10.100.0/24"
+    subnet_id: "4"
+    ranges:
+      - id: "0"
+        start: "10.10.100.201"
+        end: "10.10.100.250"
+    domain_name: "home.arpa"
+    default_router: "10.10.100.1"
+    dns_server: "10.10.100.1"
+    lease_time: "86400"
+    tftp_server_name: "10.10.100.1"
+    static_mappings:
+      - mac: "BC:24:11:B7:42:81"
+        ip: "10.10.100.10"
+        hostname: "bastion"
+  - network_name: "DMZ"
+    subnet: "172.16.99.0/24"
+    subnet_id: "5"
+    ranges:
+      - id: "0"
+        start: "172.16.99.201"
+        end: "172.16.99.250"
+    domain_name: "home.arpa"
+    default_router: "172.16.99.1"
+    dns_server: "8.8.8.8"
+    lease_time: "86400"
+    tftp_server_name: "172.16.99.1"
+    static_mappings: []
+
+vyos_dhcpv6_configs:
+  - network_name: "INF"
+    subnet: "fd00:10:10::/64"
+    subnet_id: "1"
+    ranges:
+      - id: "0"
+        start: "fd00:10:10::100"
+        end: "fd00:10:10::200"
+    domain_name: "home.arpa"
+    name_server: "fd00:10:10::1"
+  - network_name: "SVC"
+    subnet: "fd00:10:20::/64"
+    subnet_id: "2"
+    ranges:
+      - id: "0"
+        start: "fd00:10:20::100"
+        end: "fd00:10:20::200"
+    domain_name: "home.arpa"
+    name_server: "fd00:10:20::1"
+  - network_name: "STO"
+    subnet: "fd00:10:30::/64"
+    subnet_id: "3"
+    ranges:
+      - id: "0"
+        start: "fd00:10:30::100"
+        end: "fd00:10:30::200"
+    domain_name: "home.arpa"
+    name_server: "fd00:10:30::1"
+  - network_name: "VPN"
+    subnet: "fd00:10:100::/64"
+    subnet_id: "4"
+    ranges:
+      - id: "0"
+        start: "fd00:10:100::100"
+        end: "fd00:10:100::200"
+    domain_name: "home.arpa"
+    name_server: "fd00:10:100::1"
+  - network_name: "DMZ"
+    subnet: "fd00:16:99::/64"
+    subnet_id: "5"
+    ranges:
+      - id: "0"
+        start: "fd00:16:99::100"
+        end: "fd00:16:99::200"
+    domain_name: "home.arpa"
+    name_server: "2001:4860:4860::8888" # Google DNS
+
+vyos_dns_configs:
+  search_domain: "home.arpa"
+  upstream_dns:
+    - "8.8.8.8"
+  allow_from:
+    - "10.0.0.0/8"
+    - "fc00::/7"
+  listen_addresses:
+    - "10.10.10.1"
+    - "10.10.20.1"
+    - "10.10.30.1"
+    - "10.10.100.1"
+    - "fd00:10:10::1"
+    - "fd00:10:20::1"
+    - "fd00:10:30::1"
+    - "fd00:10:100::1"
+  records:
+    # Catch all for home.arpa
+    - domain: "home.arpa"
+      type: "A"
+      name: "@"
+      address: "10.10.10.1"
+    # Load Balancer Rancher Cluster
+    - domain: "rancher.home.arpa"
+      type: "A"
+      name: "@"
+      address: "10.10.10.10"
+    # Control Planes for Infrastructure Cluster
+    - domain: "infra.home.arpa"
+      type: "A"
+      name: "@"
+      address: "10.10.10.20"
+    - domain: "infra.home.arpa"
+      type: "A"
+      name: "@"
+      address: "10.10.10.21"
+    - domain: "infra.home.arpa"
+      type: "A"
+      name: "@"
+      address: "10.10.10.22"
+    # Load Balancer Infrastructure Cluster
+    - domain: "infra.home.arpa"
+      type: "A"
+      name: "any"
+      address: "10.10.10.11"
+    # Load Balancer Docker
+    - domain: "app.home.arpa"
+      type: "A"
+      name: "any"
+      address: "10.10.20.10"
+    - domain: "app.home.arpa"
+      type: "A"
+      name: "@"
+      address: "10.10.20.10"
+    # Load Balancer Service Cluster
+    - domain: "svc.home.arpa"
+      type: "A"
+      name: "any"
+      address: "10.10.20.11"
+    # Load Balancer S3
+    - domain: "s3.storage.home.arpa"
+      type: "A"
+      name: "@"
+      address: "10.10.30.10"
+    - domain: "psql.storage.home.arpa"
+      type: "A"
+      name: "@"
+      address: "10.10.30.10"
+
+vyos_nat_configs:
+  - outbound_interface: eth0
+    source: "10.10.10.0/24"
+    translation: "masquerade"
+  - outbound_interface: eth0
+    source: "10.10.20.0/24"
+    translation: "masquerade"
+  - outbound_interface: eth0
+    source: "10.10.30.0/24"
+    translation: "masquerade"
+  - outbound_interface: eth0
+    source: "10.10.100.0/24"
+    translation: "masquerade"
+  - outbound_interface: eth0
+    source: "172.16.99.0/24"
+    translation: "masquerade"
+
+vyos_ssh_config:
+  key_type: "ssh-ed25519"
+  pub_key_path: "files/homelab.pub"
+  disable_password_authentication: false
+
+vyos_wireguard:
+  # The name of the wireguard interface
+  interface: wg01
+
+  # IP of the wireguard interface
+  interface_ip: "10.100.0.1/24"
+
+  # The description of the wireguard interface
+  description: VPN
+
+  # The port we listen on
+  listen_port: "51820"
+
+  # Wether new pre-shred and private key should be configured
+  refresh_keys: true
+
+  peers:
+    - peer_name: MacBook
+      # The allowed ips for the peer
+      allowed_ips:
+        - "10.100.0.2/32"
+      persistent_keepalive_duration: "15"
+      # The public key from the client
+      public_key: "FEeMx2zTSbqDBJdgRfnXUPQFNKAGUtjCKJnxuuJ+QU0="
+      refresh_key: true
+
+# TFTP Server Configuration
+vyos_tftp:
+  enabled: true
+  directory: "/config/tftpboot"
+  address: "10.10.10.1"
+  allow_upload: true

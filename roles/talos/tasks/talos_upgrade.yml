@@ -1,0 +1,14 @@
+---
+- name: Upgrade Control Planes
+  ansible.builtin.command: >
+    talosctl upgrade --talosconfig {{ talos_cluster.working_dir }}/configs/talosconfig --nodes {{ control_plane.ip }} --image {{ talos_factory_image_url }}
+  loop: "{{ talos_cluster.control_nodes }}"
+  loop_control:
+    loop_var: control_plane
+
+- name: Upgrade Worker Nodes
+  ansible.builtin.command: >
+    talosctl upgrade --talosconfig {{ talos_cluster.working_dir }}/configs/talosconfig --nodes {{ worker_node.ip }} --image {{ talos_factory_image_url }}
+  loop: "{{ talos_cluster.worker_nodes }}"
+  loop_control:
+    loop_var: worker_node

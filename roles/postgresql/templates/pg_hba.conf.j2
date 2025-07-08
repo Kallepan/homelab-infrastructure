@@ -1,0 +1,10 @@
+# Allow connections from the private network
+host    all             all             10.10.0.0/8               scram-sha-256
+host    all             all             127.0.0.1/32              scram-sha-256
+host    all             all             ::1/128                   scram-sha-256
+# Allow connections from all IP addresses (use with caution, consider removing in production)
+# host    all           all             0.0.0.0/0                 scram-sha-256
+# host    all           all             ::/0                      scram-sha-256
+# Allow local connections
+local   all             postgres                                  trust
+local   replication     postgres                                  trust

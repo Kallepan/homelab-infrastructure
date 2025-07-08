@@ -1,0 +1,8 @@
+# Handlers for PostgreSQL role
+
+- name: Restart PostgreSQL
+  ansible.builtin.service:
+    name: postgresql
+    state: restarted
+  become: true
+  become_user: root

@@ -1,0 +1,4 @@
+---
+ssl_root_ca_name: root_ca.crt
+
+ssl_ca_chain_path: "{{ role_path }}/../../pki/intermediate-ca-2/intermediate-ca-2-chain.pem"

@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+
+BACKUP_DIR="/tmp/basebackup_$(date +%Y%m%d_%H%M%S)"
+S3_BUCKET="s3://{{ postgresql_s3_bucket }}/basebackups"
+
+# Create base backup
+pg_basebackup -D "$BACKUP_DIR" -Ft -z -P
+
+# Tar the backup directory
+tar -czf "$BACKUP_DIR".tar.gz -C "$(dirname "$BACKUP_DIR")" "$(basename "$BACKUP_DIR")"
+
+# Upload to S3
+aws s3 cp "$BACKUP_DIR".tar.gz "$S3_BUCKET/"
+
+# Clean up
+rm -rf "$BACKUP_DIR" "$BACKUP_DIR".tar.gz

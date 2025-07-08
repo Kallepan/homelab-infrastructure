@@ -1,0 +1,22 @@
+---
+- name: Common Setup Tasks
+  hosts: vms
+  become: true
+  gather_facts: true
+  roles:
+    - common
+    - ssl
+
+- name: Setup Minio
+  hosts: minio
+  gather_facts: true
+  become: true
+  roles:
+    - minio
+
+- name: Setup PostgreSQL
+  hosts: postgresql
+  gather_facts: true
+  become: true
+  roles:
+    - postgresql

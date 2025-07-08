@@ -1,0 +1,64 @@
+- name: Add Cilium Helm Repository
+  kubernetes.core.helm_repository:
+    name: cilium
+    repo_url: https://helm.cilium.io/
+
+- name: Wait for Kubernetes API Server
+  ansible.builtin.wait_for:
+    host: "{{ talos_cluster.endpoint }}"
+    port: 6443
+    delay: 10
+    timeout: 300
+  changed_when: false
+
+- name: Install Cilium
+  kubernetes.core.helm:
+    name: cilium
+    chart_ref: cilium/cilium
+    release_namespace: kube-system
+    kubeconfig: "{{ talos_cluster.working_dir }}/configs/kubeconfig"
+    values:
+      cluster:
+        name: "{{ talos_cluster.name }}"
+        id: 1
+      cni:
+        exclusive: false
+      ipam:
+        mode: "kubernetes"
+      kubeProxyReplacement: true
+      l2announcements:
+        enabled: true
+      k8sClientRateLimit:
+        qps: 5
+        burst: 10
+      externalIPs:
+        enabled: true
+      securityContext:
+        capabilities:
+          ciliumAgent:
+            - CHOWN
+            - KILL
+            - NET_ADMIN
+            - NET_RAW
+            - IPC_LOCK
+            - SYS_ADMIN
+            - SYS_RESOURCE
+            - DAC_OVERRIDE
+            - FOWNER
+            - SETGID
+            - SETUID
+          cleanCiliumState:
+            - NET_ADMIN
+            - SYS_ADMIN
+            - SYS_RESOURCE
+      cgroup:
+        autoMount:
+          enabled: false
+        hostRoot: "/sys/fs/cgroup"
+      k8sServiceHost: localhost
+      k8sServicePort: 7445
+      gatewayAPI:
+        enabled: true
+        enableAlpn: true
+        enableAppProtocol: true
+  when: not ansible_check_mode

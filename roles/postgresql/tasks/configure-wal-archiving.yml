@@ -1,0 +1,89 @@
+---
+- name: Ensure unzip is installed
+  ansible.builtin.package:
+    name: unzip
+    state: present
+  become: true
+
+- name: Download AWS CLI v2
+  ansible.builtin.get_url:
+    url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+    dest: "/tmp/awscliv2.zip"
+    mode: '0644'
+  become: true
+  become_user: root
+
+- name: Unzip AWS CLI v2
+  ansible.builtin.unarchive:
+    src: "/tmp/awscliv2.zip"
+    dest: "/tmp"
+    remote_src: true
+  become: true
+  become_user: root
+
+- name: Install AWS CLI v2
+  ansible.builtin.command:
+    cmd: "./aws/install --update"
+  args:
+    chdir: "/tmp"
+  become: true
+  become_user: root
+
+- name: Clean up AWS CLI v2 installation files
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/tmp/awscliv2.zip"
+    - "/tmp/aws"
+  become: true
+  become_user: root
+
+- name: Ensure .aws directory exists for postgres user
+  ansible.builtin.file:
+    path: /var/lib/postgresql/.aws
+    state: directory
+    owner: postgres
+    group: postgres
+    mode: '0700'
+  become: true
+  become_user: root
+
+- name: Create AWS credentials file for postgres user
+  ansible.builtin.template:
+    src: credentials.j2
+    dest: /var/lib/postgresql/.aws/credentials
+    owner: postgres
+    group: postgres
+    mode: '0600'
+  become: true
+  become_user: root
+  vars:
+    postgresql_aws_access_key_id: "{{ lookup('env', 'POSTGRESQL_AWS_ACCESS_KEY_ID') }}"
+    postgresql_aws_secret_access_key: "{{ lookup('env', 'POSTGRESQL_AWS_SECRET_ACCESS_KEY') }}"
+
+- name: Reload systemd daemon for PostgreSQL env changes
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+  become_user: root
+  notify:
+    - Restart PostgreSQL
+
+- name: Ensure postgresql.conf is configured for WAL archiving
+  ansible.builtin.lineinfile:
+    dest: "{{ postgresql_config_dir }}/postgresql.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+    - regexp: "^#?archive_mode ="
+      line: "archive_mode = on"
+    - regexp: "^#?archive_command ="
+      line: "archive_command = 'aws s3 cp %p s3://{{ postgresql_s3_bucket }}/wal_archiving/%f'"
+    - regexp: "^#?archive_timeout ="
+      line: "archive_timeout = 60"
+  notify:
+    - Restart PostgreSQL
+  become: true
+  become_user: root

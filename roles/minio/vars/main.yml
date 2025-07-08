@@ -1,0 +1,12 @@
+minio_download_url: "https://dl.min.io/server/minio/release/linux-amd64/minio"
+minio_binary_path: "/usr/local/bin/minio"
+minio_data_dir: "/data/minio"
+
+minio_certs_dir: "/data/certs"
+minio_user: "minio-user"
+minio_group: "minio-user"
+
+minio_certs_key: "{{ role_path }}/../../pki/intermediate-ca-2/private/home-arpa.key"
+minio_certs_cert: "{{ role_path }}/../../pki/intermediate-ca-2/certs/home-arpa.crt"
+
+minio_set_capabilities: true

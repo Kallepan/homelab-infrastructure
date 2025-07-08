@@ -1,0 +1,36 @@
+# # Description: Main tasks file for the talos role.
+# ---
+- name: Include Fetch Image
+  ansible.builtin.include_tasks: fetch_image.yml
+
+- name: Check if talosconfig is present
+  ansible.builtin.stat:
+    path: "{{ talos_clusters[0].working_dir }}/configs/talosconfig"
+  register: talosconfig_file
+
+- name: Include Setup Tasks
+  ansible.builtin.include_tasks: setup.yml
+  loop: "{{ talos_clusters }}"
+  loop_control:
+    loop_var: talos_cluster
+
+- name: Include Install Cilium
+  ansible.builtin.include_tasks: install_cilium.yml
+  loop: "{{ talos_clusters }}"
+  loop_control:
+    loop_var: talos_cluster
+  when: talos_cluster.install_cilium | default(false)
+
+- name: Include Talos Upgrade
+  ansible.builtin.include_tasks: talos_upgrade.yml
+  loop: "{{ talos_clusters }}"
+  loop_control:
+    loop_var: talos_cluster
+  when: talosconfig_file.stat.exists and talos_cluster.upgrade_talos
+
+- name: Include K8S Upgrade
+  ansible.builtin.include_tasks: k8s_upgrade.yml
+  loop: "{{ talos_clusters }}"
+  loop_control:
+    loop_var: talos_cluster
+  when: talosconfig_file.stat.exists and talos_cluster.upgrade_k8s

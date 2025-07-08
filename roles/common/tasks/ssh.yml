@@ -1,0 +1,17 @@
+---
+- name: Ensure SSH daemon is running.
+  ansible.builtin.service:
+    name: "{{ common_security_sshd_name }}"
+    state: "{{ common_security_sshd_state }}"
+    enabled: "{{ common_security_sshd_enabled }}"
+
+- name: Deploy secure SSH configuration.
+  ansible.builtin.template:
+    src: "{{ common_security_ssh_config_template }}"
+    dest: "{{ common_security_ssh_config_path }}"
+    owner: root
+    group: root
+    mode: "0644"
+    validate: "sshd -T -f %s"
+  notify: Restart ssh
+  when: inventory_hostname != 'proxmox'
