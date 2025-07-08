@@ -1,10 +1,10 @@
 #!/bin/bash
-CREATE ROLE mattermost WITH LOGIN PASSWORD '';
+CREATE ROLE mlflow WITH LOGIN PASSWORD '';
 
-CREATE DATABASE mattermost_db OWNER mattermost
+CREATE DATABASE mlflow_db OWNER mlflow
     ENCODING = 'UTF8'
     LC_COLLATE = 'en_US.UTF-8'
     LC_CTYPE = 'en_US.UTF-8'
     TEMPLATE = template0;
 
-ALTER DATABASE mattermost_db OWNER TO mattermost;
+ALTER DATABASE mlflow_db OWNER TO mlflow;
