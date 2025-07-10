@@ -48,6 +48,9 @@ export TF_VAR_bucket_loki_secret_key ?= $(shell sops -d secrets.yaml | yq .minio
 export TF_VAR_bucket_rancher_access_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.rancher.access_key -r)
 export TF_VAR_bucket_rancher_secret_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.rancher.secret_key -r)
 
+export TF_VAR_bucket_mlflow_access_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.mlflow.access_key -r)
+export TF_VAR_bucket_mlflow_secret_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.mlflow.secret_key -r)
+
 export TF_VAR_postgres_username ?= postgres
 export TF_VAR_postgres_password ?= $(POSTGRESQL_PASSWORD)
 

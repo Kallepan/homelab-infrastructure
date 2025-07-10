@@ -156,6 +156,18 @@ variable "bucket_rancher_access_key" {
   sensitive   = true
 }
 
+variable "bucket_mlflow_access_key" {
+  description = "Access key for the MLflow bucket in Minio"
+  type        = string
+  sensitive   = true
+}
+
+variable "bucket_mlflow_secret_key" {
+  description = "Secret key for the MLflow bucket in Minio"
+  type        = string
+  sensitive   = true
+}
+
 ### Alertmanager Configuration Variables
 variable "alertmanager_mattermost_webhook_url" {
   description = "Webhook URL for Alertmanager metrics notifications to Mattermost"

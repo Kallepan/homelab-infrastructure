@@ -243,6 +243,40 @@ EOF
   ]
 }
 EOF
+    },
+    {
+      buckets = ["mlflow"]
+      user_name   = "mlflow"
+      group_name  = "mlflow"
+      access_key  = var.bucket_mlflow_access_key
+      secret_key  = var.bucket_mlflow_secret_key
+      policy      = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:ListBucket",
+        "s3:GetBucketLocation",
+        "s3:ListBucketMultipartUploads"
+      ],
+      "Resource": ["arn:aws:s3:::mlflow"]
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject",
+        "s3:ListMultipartUploadParts",
+        "s3:AbortMultipartUpload"
+      ],
+      "Resource": ["arn:aws:s3:::mlflow/*"]
+    }
+  ]
+}
+EOF
     }
   ]
   minio_user                     = var.minio_user
