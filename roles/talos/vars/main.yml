@@ -14,5 +14,5 @@ talos_clusters:
     upgrade_talos: false
     upgrade_k8s: false
 
-talos_version: "v1.10.3"
-talos_k8s_version: "1.33.0"
+talos_version: "v1.10.5"
+talos_k8s_version: "1.33.2"
