@@ -67,7 +67,7 @@ This repository documents the architecture and setup of my personal homelab envi
 
 | VM Name     | Description      | IP Address         | RAM      |
 |-------------|------------------|--------------------|----------|
-| `minio`     | NFS/S3 storage   | 10.10.30.10        | 8GB      |
+| `storage`   | S3/PSQL.         | 10.10.30.10        | 8GB      |
 | `bastion`   | VPN Gateway      | 10.10.100.10       | 256MB    |
 | `dmz`       | Public-facing services | 172.16.99.10 | 1GB      |
 

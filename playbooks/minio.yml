@@ -14,9 +14,9 @@
   roles:
     - minio
 
-# - name: Setup PostgreSQL
-#   hosts: postgresql
-#   gather_facts: true
-#   become: true
-#   roles:
-#     - postgresql
+- name: Setup PostgreSQL
+  hosts: postgresql
+  gather_facts: true
+  become: true
+  roles:
+    - postgresql
