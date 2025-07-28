@@ -82,9 +82,6 @@ vyos_dhcpv4_configs:
     lease_time: "86400"
     tftp_server_name: "10.10.20.1"
     static_mappings:
-      - mac: "BC:24:11:46:F3:96"
-        ip: "10.10.20.9"
-        hostname: "wazuh"
       - mac: "BC:24:11:CA:A2:93"
         ip: "10.10.20.10"
         hostname: "docker"
