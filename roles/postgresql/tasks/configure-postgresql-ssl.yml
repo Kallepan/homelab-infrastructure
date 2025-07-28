@@ -49,6 +49,8 @@
       line: "ssl_ciphers = 'HIGH:!aNULL:!eNULL:!MD5:!3DES'"
     - regexp: "^#?ssl_prefer_server_ciphers ="
       line: "ssl_prefer_server_ciphers = on"
+    - regexp: "^#?max_connections ="
+      line: "max_connections = {{ postgresql_max_connections }}"
   notify:
     - Restart PostgreSQL
   become: true
