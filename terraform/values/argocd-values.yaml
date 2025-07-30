@@ -18,6 +18,10 @@ configs:
     policy.csv: |
       g, admin, role:admin
 
+controller:
+  metrics:
+    enabled: true
+
 server:
   ingress:
     enabled: true
