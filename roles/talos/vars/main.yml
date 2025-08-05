@@ -9,6 +9,7 @@ talos_clusters:
       - ip: "10.10.10.30"
       - ip: "10.10.10.31"
       - ip: "10.10.10.32"
+      - ip: "10.10.10.33"
     working_dir: templates/talos/infrastructure
     install_cilium: true
     upgrade_talos: false
