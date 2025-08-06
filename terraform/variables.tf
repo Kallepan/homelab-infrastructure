@@ -168,6 +168,18 @@ variable "bucket_mlflow_secret_key" {
   sensitive   = true
 }
 
+variable "bucket_mattermost_access_key" {
+  description = "Access key for the Mattermost bucket in Minio"
+  type        = string
+  sensitive   = true
+}
+
+variable "bucket_mattermost_secret_key" {
+  description = "Secret key for the Mattermost bucket in Minio"
+  type        = string
+  sensitive   = true
+}
+
 ### Alertmanager Configuration Variables
 variable "alertmanager_mattermost_webhook_url" {
   description = "Webhook URL for Alertmanager metrics notifications to Mattermost"

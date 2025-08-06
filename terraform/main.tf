@@ -3,6 +3,44 @@ module "minio" {
 
   bucket_configurations = [
     {
+      buckets = ["mattermost"]
+      user_name   = "mattermost"
+      group_name  = "mattermost"
+      access_key  = var.bucket_mattermost_access_key
+      secret_key  = var.bucket_mattermost_secret_key
+      policy      = <<EOF
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:ListBucket",
+                "s3:GetBucketLocation",
+                "s3:ListBucketMultipartUploads"
+            ],
+            "Resource": [
+                "arn:aws:s3:::mattermost"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:PutObject",
+                "s3:GetObject",
+                "s3:DeleteObject",
+                "s3:ListMultipartUploadParts",
+                "s3:AbortMultipartUpload"
+            ],
+            "Resource": [
+                "arn:aws:s3:::mattermost/*"
+            ]
+        }
+    ]
+}
+EOF
+    },
+    {
       buckets = ["argo-workflows-artifacts"]
       user_name   = "argo"
       group_name  = "argo"
