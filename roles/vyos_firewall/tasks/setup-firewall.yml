@@ -680,6 +680,13 @@
       - set firewall ipv6 name VPNv6-to-INFv6 rule 800 action 'accept'
       - set firewall ipv6 name VPNv6-to-INFv6 rule 800 destination port '22,2222'
       - set firewall ipv6 name VPNv6-to-INFv6 rule 800 protocol 'tcp'
+      # Proxmox
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 8006 action 'accept'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 8006 destination port '8006'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 8006 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 8006 action 'accept'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 8006 destination port '8006'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 8006 protocol 'tcp'
       # Talos
       - set firewall ipv4 name VPNv4-to-INFv4 rule 50000 action 'accept'
       - set firewall ipv4 name VPNv4-to-INFv4 rule 50000 destination port '50000'
