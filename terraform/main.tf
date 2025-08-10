@@ -211,7 +211,7 @@ EOF
 EOF
     },
     {
-      buckets = ["loki-chunks"]
+      buckets = ["loki-chunks", "loki-ruler", "loki-admin"]
       user_name   = "loki"
       group_name  = "loki"
       access_key  = var.bucket_loki_access_key
@@ -228,7 +228,9 @@ EOF
         "s3:ListBucketMultipartUploads"
       ],
       "Resource": [
-        "arn:aws:s3:::loki-chunks"
+        "arn:aws:s3:::loki-chunks",
+        "arn:aws:s3:::loki-ruler",
+        "arn:aws:s3:::loki-admin"
       ]
     },
     {
@@ -241,7 +243,9 @@ EOF
         "s3:AbortMultipartUpload"
       ],
       "Resource": [
-        "arn:aws:s3:::loki-chunks/*"
+        "arn:aws:s3:::loki-chunks/*",
+        "arn:aws:s3:::loki-ruler/*",
+        "arn:aws:s3:::loki-admin/*"
       ]
     }
   ]
