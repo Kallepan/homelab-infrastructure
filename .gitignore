@@ -130,7 +130,7 @@ changelogs/.plugin-cache.yaml
 
 # secrets
 .decrypted~secrets.y*ml
-secrets.y*ml
+secrets*.y*ml
 *config
 
 controlplane.y*ml

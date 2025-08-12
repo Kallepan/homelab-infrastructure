@@ -48,18 +48,6 @@ variable "argocd_app_of_apps_path" {
   default     = "app-of-apps/deploy/overlays/infrastructure"
 }
 
-variable "argo_workflows_postgres_username" {
-  description = "Username for the Argo Workflows PostgreSQL database"
-  type        = string
-  sensitive   = true
-}
-
-variable "argo_workflows_postgres_password" {
-  description = "Password for the Argo Workflows PostgreSQL database"
-  type        = string
-  sensitive   = true
-}
-
 ### Cert-Manager Configuration Variables ##
 variable "cert_manager_ca_crt_path" {
   description = "Path to the CA certificate for Cert-Manager"
@@ -199,18 +187,6 @@ variable "grafana_oauth_client_secret" {
   sensitive   = true
 }
 
-## Argo Configuration Variables
-variable "argo_oauth_client_id" {
-  description = "OAuth client ID for argo"
-  type        = string
-  sensitive   = true
-}
-variable "argo_oauth_client_secret" {
-  description = "OAuth client secret for argo"
-  type        = string
-  sensitive   = true
-}
-
 ## GitLab Configuration Variables
 variable "gitlab_oauth_client_id" {
   description = "OAuth client ID for GitLab"
@@ -250,13 +226,6 @@ variable "gitlab_registry_postgres_password" {
 ## GitLab Runner Configuration Variables
 variable "gitlab_runner_token" {
   description = "GitLab Runner registration token"
-  type        = string
-  sensitive   = true
-}
-
-## Mattermost Configuration Variables
-variable "mattermost_database_connection_string" {
-  description = "Connection string for the Mattermost database"
   type        = string
   sensitive   = true
 }

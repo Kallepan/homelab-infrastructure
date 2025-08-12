@@ -60,9 +60,6 @@ export TF_VAR_postgres_password ?= $(POSTGRESQL_PASSWORD)
 export TF_VAR_grafana_oauth_client_secret ?= $(shell sops -d secrets.yaml | yq .grafana.oauth_client_secret -r)
 export TF_VAR_grafana_oauth_client_id ?= $(shell sops -d secrets.yaml | yq .grafana.oauth_client_id -r)
 
-export TF_VAR_argo_oauth_client_id ?= $(shell sops -d secrets.yaml | yq .argo.oauth_client_id -r)
-export TF_VAR_argo_oauth_client_secret ?= $(shell sops -d secrets.yaml | yq .argo.oauth_client_secret -r)
-
 export TF_VAR_alertmanager_mattermost_webhook_url ?= $(shell sops -d secrets.yaml | yq .alertmanager.mattermost_webhook_url -r)
 
 export TF_VAR_gitlab_oauth_client_id ?= $(shell sops -d secrets.yaml | yq .gitlab.oauth_client_id -r)
@@ -73,13 +70,8 @@ export TF_VAR_gitlab_registry_postgres_username ?= $(shell sops -d secrets.yaml 
 export TF_VAR_gitlab_registry_postgres_password ?= $(shell sops -d secrets.yaml | yq .gitlab.registry_db.password -r)
 export TF_VAR_gitlab_runner_token ?= $(shell sops -d secrets.yaml | yq .gitlab.runner_token -r)
 
-export TF_VAR_mattermost_database_connection_string ?= $(shell sops -d secrets.yaml | yq .mattermost.database_connection_string -r)
-
 export TF_VAR_keycloak_postgres_username ?= $(shell sops -d secrets.yaml | yq .keycloak.db.username -r)
 export TF_VAR_keycloak_postgres_password ?= $(shell sops -d secrets.yaml | yq .keycloak.db.password -r)
-
-export TF_VAR_argo_workflows_postgres_username ?= $(shell sops -d secrets.yaml | yq .argo_workflows.db.username -r)
-export TF_VAR_argo_workflows_postgres_password ?= $(shell sops -d secrets.yaml | yq .argo_workflows.db.password -r)
 
 # ===========================
 #   PKI Variables
