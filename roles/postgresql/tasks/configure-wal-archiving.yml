@@ -83,6 +83,19 @@
       line: "archive_command = 'aws s3 cp %p s3://{{ postgresql_s3_bucket }}/wal_archiving/%f'"
     - regexp: "^#?archive_timeout ="
       line: "archive_timeout = 60"
+    # Configure WAL level for replication
+    - regexp: "^#?wal_level ="
+      line: "wal_level = replica"
+    - regexp: "^#?max_wal_senders ="
+      line: "max_wal_senders = 10"
+    - regexp: "^#?max_replication_slots ="
+      line: "max_replication_slots = 10"
+    - regexp: "^#?wal_keep_size ="
+      line: "wal_keep_size = 1048576" # 1 GB
+    - regexp: "^#?hot_standby ="
+      line: "hot_standby = on"
+    - regexp: "^#?listen_addresses ="
+      line: "listen_addresses = '*'"
   notify:
     - Restart PostgreSQL
   become: true
