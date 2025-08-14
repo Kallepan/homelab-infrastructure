@@ -15,7 +15,9 @@ configs:
         ${indent(8, root_ca)}
       requestedScopes: ["openid", "profile", "email", "groups"]
   rbac:
+    defaultPolicy: 'role:readonly'
     policy.csv: |
+      p, role:no-view, *, *, */*, deny
       g, admin, role:admin
 
 server:
