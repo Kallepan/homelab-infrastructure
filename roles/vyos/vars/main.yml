@@ -242,6 +242,10 @@ vyos_dns_configs:
       type: "A"
       name: "@"
       address: "10.10.20.12"
+    - domain: "openstack.home.arpa"
+      type: "A"
+      name: "any"
+      address: "10.10.20.12"
     # Control Planes for Infrastructure Cluster
     - domain: "infra.home.arpa"
       type: "A"
