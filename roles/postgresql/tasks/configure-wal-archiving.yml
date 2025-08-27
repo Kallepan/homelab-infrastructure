@@ -91,7 +91,7 @@
     - regexp: "^#?max_replication_slots ="
       line: "max_replication_slots = 10"
     - regexp: "^#?wal_keep_size ="
-      line: "wal_keep_size = 1048576" # 1 GB
+      line: "wal_keep_size = 1024" # 1 GB
     - regexp: "^#?hot_standby ="
       line: "hot_standby = on"
     - regexp: "^#?listen_addresses ="
