@@ -134,7 +134,8 @@ export SERVER_SIGNING_DIR
 	pki-root \
 	pki-intermediate \
 	pki-clean \
-	pki-server \ 
+	pki-server \
+	terraform-validate \
 	terraform-plan \
 	terraform-apply \
 	terraform-destroy \
@@ -153,6 +154,7 @@ help:
 	@echo "  ansible-run        Run the Ansible playbook"
 	@echo "  ansible-check      Syntax check the playbook"
 	@echo "  ansible-dry-run    Run playbook in dry-run mode"
+	@echo "  terraform-validate Validate Terraform configuration"
 	@echo "  terraform-plan     Show Terraform plan"
 	@echo "  terraform-apply    Apply Terraform changes"
 	@echo "  root               Generate Root CA in PKI"
@@ -173,6 +175,12 @@ ansible-check:
 ## Dry-run (check mode)
 ansible-dry-run:
 	ansible-playbook -i "$(INVENTORY)" "$(PLAYBOOK)" --check --diff
+
+## Terraform validate
+terraform-validate:
+	@set -e; \
+	terraform -chdir=terraform init; \
+	terraform -chdir=terraform validate; \
 
 ## Terraform plan
 terraform-plan:
