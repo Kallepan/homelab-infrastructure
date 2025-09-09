@@ -13,3 +13,5 @@
   ansible.builtin.include_tasks: setup-capabilities.yml
 - name: Start Service
   ansible.builtin.include_tasks: start-service.yml
+- name: Setup Cleanup Cronjob
+  ansible.builtin.include_tasks: setup-cronjob.yml

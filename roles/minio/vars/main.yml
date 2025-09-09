@@ -10,3 +10,6 @@ minio_certs_key: "{{ role_path }}/../../pki/intermediate-ca-2/private/home-arpa.
 minio_certs_cert: "{{ role_path }}/../../pki/intermediate-ca-2/certs/home-arpa.crt"
 
 minio_set_capabilities: true
+
+minio_directories_to_clean_in_cronjob:
+  - "{{ minio_data_dir }}/backups/wal_archiving"
