@@ -14,6 +14,24 @@
     state: directory
   become: true
 
+- name: Ensure pgBackRest spool directory exists
+  ansible.builtin.file:
+    path: /var/spool/pgbackrest
+    mode: '0750'
+    owner: postgres
+    group: postgres
+    state: directory
+  become: true
+
+- name: Ensure pgBackRest log directory exists
+  ansible.builtin.file:
+    path: /var/log/pgbackrest
+    mode: '0750'
+    owner: postgres
+    group: postgres
+    state: directory
+  become: true
+
 - name: Deploy pgBackRest configuration file
   ansible.builtin.template:
     src: pgbackrest.conf.j2

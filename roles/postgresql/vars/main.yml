@@ -34,6 +34,14 @@ postgresql_max_connections: 1000
 
 postgresql_pgbackrest_stanza: 'main'
 
+# pgBackRest retention configuration
+postgresql_retention_full: 3
+postgresql_retention_diff: 5
+postgresql_retention_archive: 7
+
+# pgBackRest performance
+postgresql_backup_process_max: 2
+
 # pgBackRest backup schedule configuration
 postgresql_backup_full_hour: "2"
 postgresql_backup_full_minute: "0"
