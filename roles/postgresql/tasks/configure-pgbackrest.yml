@@ -1,0 +1,94 @@
+---
+- name: Ensure pgBackRest is installed
+  ansible.builtin.package:
+    name: pgbackrest
+    state: present
+  become: true
+
+- name: Ensure pgBackRest configuration directory exists
+  ansible.builtin.file:
+    path: /etc/pgbackrest
+    mode: '0750'
+    owner: postgres
+    group: postgres
+    state: directory
+  become: true
+
+- name: Deploy pgBackRest configuration file
+  ansible.builtin.template:
+    src: pgbackrest.conf.j2
+    dest: /etc/pgbackrest/pgbackrest.conf
+    owner: postgres
+    group: postgres
+    mode: '0640'
+  become: true
+  vars:
+    postgresql_aws_access_key_id: "{{ lookup('env', 'POSTGRESQL_AWS_ACCESS_KEY_ID') }}"
+    postgresql_aws_secret_access_key: "{{ lookup('env', 'POSTGRESQL_AWS_SECRET_ACCESS_KEY') }}"
+
+- name: Ensure postgresql.conf is configured for WAL archiving
+  ansible.builtin.lineinfile:
+    dest: "{{ postgresql_config_dir }}/postgresql.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+    - regexp: "^#?archive_mode ="
+      line: "archive_mode = on"
+    - regexp: "^#?archive_command ="
+      line: "archive_command = 'pgbackrest --stanza={{ postgresql_pgbackrest_stanza }} archive-push %p'"
+    - regexp: "^#?archive_timeout ="
+      line: "archive_timeout = 60"
+    # Configure WAL level for replication
+    - regexp: "^#?wal_level ="
+      line: "wal_level = replica"
+    - regexp: "^#?max_wal_senders ="
+      line: "max_wal_senders = 10"
+    - regexp: "^#?max_replication_slots ="
+      line: "max_replication_slots = 10"
+    - regexp: "^#?wal_keep_size ="
+      line: "wal_keep_size = 1024" # 1 GB
+    - regexp: "^#?hot_standby ="
+      line: "hot_standby = on"
+    - regexp: "^#?listen_addresses ="
+      line: "listen_addresses = '*'"
+  notify:
+    - Restart PostgreSQL
+  become: true
+  become_user: root
+
+- name: Check if pgBackRest stanza exists
+  ansible.builtin.command:
+    cmd: sudo -u postgres pgbackrest --stanza={{ postgresql_pgbackrest_stanza }} info
+  become: true
+  become_user: root
+  register: stanza_check
+  failed_when: false
+  changed_when: false
+
+- name: Create pgBackRest stanza
+  ansible.builtin.command:
+    cmd: sudo -u postgres pgbackrest --stanza={{ postgresql_pgbackrest_stanza }} stanza-create
+  become: true
+  become_user: root
+  when: stanza_check.rc != 0
+
+- name: Schedule daily pgBackRest full backup
+  ansible.builtin.cron:
+    name: "pgBackRest daily full backup"
+    user: postgres
+    minute: "{{ postgresql_backup_full_minute }}"
+    hour: "{{ postgresql_backup_full_hour }}"
+    job: "pgbackrest --stanza={{ postgresql_pgbackrest_stanza }} backup --type=full"
+    cron_file: pgbackrest-backup
+  become: true
+
+- name: Schedule 4-hourly pgBackRest incremental backup
+  ansible.builtin.cron:
+    name: "pgBackRest 4-hourly incremental backup"
+    user: postgres
+    minute: "{{ postgresql_backup_incr_minute }}"
+    hour: "{{ postgresql_backup_incr_hours }}"
+    job: "pgbackrest --stanza={{ postgresql_pgbackrest_stanza }} backup --type=incr"
+    cron_file: pgbackrest-backup
+  become: true

@@ -8,11 +8,11 @@
 - name: Configure PostgreSQL SSL
   ansible.builtin.include_tasks: configure-postgresql-ssl.yml
 
-- name: Configure WAL Archiving
-  ansible.builtin.include_tasks: configure-wal-archiving.yml
-
-- name: Configure Base Backup
-  ansible.builtin.include_tasks: configure-base-backup.yml
+- name: Configure pgBackRest
+  ansible.builtin.include_tasks: configure-pgbackrest.yml
 
 - name: Configure Postgres Metrics Exporter
   ansible.builtin.include_tasks: configure-postgres-metrics-exporter.yml
+
+- name: Install AWS CLI
+  ansible.builtin.include_tasks: install-aws-cli.yml
