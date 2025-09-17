@@ -258,6 +258,11 @@ vyos_dns_configs:
       type: "A"
       name: "any"
       address: "10.10.10.11"
+    # Openstack VIP
+    - domain: "openstack.home.arpa"
+      type: "A"
+      name: "@"
+      address: "10.10.10.49"
     # Load Balancer Docker
     - domain: "app.home.arpa"
       type: "A"
