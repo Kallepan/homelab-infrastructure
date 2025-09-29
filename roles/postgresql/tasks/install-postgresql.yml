@@ -27,9 +27,3 @@
     update_cache: true
   when: not ansible_check_mode and ansible_os_family == 'Debian'
 
-- name: Configure Extensions
-  ansible.builtin.command:
-    cmd: |
-      su - postgres -c "psql -c \"CREATE EXTENSION IF NOT EXISTS pg_stat_statements;\""
-  become: true
-  become_user: root

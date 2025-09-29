@@ -52,3 +52,10 @@
       su - postgres -c "psql -c \"ALTER USER postgres WITH PASSWORD '{{ lookup('env', 'POSTGRESQL_PASSWORD') }}';\""
   become: true
   become_user: root
+
+- name: Configure Extensions
+  ansible.builtin.command:
+    cmd: |
+      su - postgres -c "psql -c \"CREATE EXTENSION IF NOT EXISTS pg_stat_statements;\""
+  become: true
+  become_user: root
