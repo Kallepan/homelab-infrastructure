@@ -707,6 +707,20 @@
       - set firewall ipv6 name VPNv6-to-INFv6 rule 50000 action 'accept'
       - set firewall ipv6 name VPNv6-to-INFv6 rule 50000 destination port '50000'
       - set firewall ipv6 name VPNv6-to-INFv6 rule 50000 protocol 'tcp'
+      # Openstack NOVNC
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 6080 action 'accept'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 6080 destination port '6080'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 6080 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 6080 action 'accept'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 6080 destination port '6080'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 6080 protocol 'tcp'
+      # Openstack Skyline
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 9998 action 'accept'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 9998 destination port '9998'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 9998 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 9998 action 'accept'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 9998 destination port '9998'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 9998 protocol 'tcp'
       # Ipv4
       - set firewall zone inf from wg01 firewall name 'VPNv4-to-INFv4'
       - set firewall zone inf from vpn firewall name 'VPNv4-to-INFv4'

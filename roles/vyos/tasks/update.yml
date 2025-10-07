@@ -8,7 +8,7 @@
 # Extract the current version of the image on the device
 - name: Get current image version
   ansible.builtin.set_fact:
-    current_image_version: "{{ current_image.stdout | regex_search('\\d+\\.\\d+-rolling-\\d+') }}"
+    current_image_version: "{{ current_image.stdout | regex_search('[\\d]{4}\\.[\\d]{2}\\.[\\d]{2}-[\\d]+-rolling') }}"
 
 # Add the new image if the current version is not the same as the new image
 - name: Update image
