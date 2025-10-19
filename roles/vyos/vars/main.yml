@@ -231,7 +231,7 @@ vyos_dns_configs:
       name: "@"
       address: "10.10.10.1"
     # Load Balancer Rancher Cluster
-    - domain: "rancher.home.arpa"
+    - domain: "rancher.infra.home.arpa"
       type: "A"
       name: "@"
       address: "10.10.10.10"
