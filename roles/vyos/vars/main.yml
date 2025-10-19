@@ -236,7 +236,7 @@ vyos_dns_configs:
       name: "@"
       address: "10.10.10.10"
     # Wazuh
-    - domain: "wazuh.home.arpa"
+    - domain: "wazuh.infra.home.arpa"
       type: "A"
       name: "@"
       address: "10.10.10.40"
