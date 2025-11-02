@@ -2,6 +2,11 @@
 #   Ansible Variables
 # ===========================
 
+# GarageHQ Credentials
+export GARAGEHQ_RPC_SECRET := $(shell sops -d secrets.yaml | yq .garage_hq.rpc_secret -r)
+export GARAGEHQ_ADMIN_TOKEN := $(shell sops -d secrets.yaml | yq .garage_hq.admin_token -r)
+export GARAGEHQ_METRICS_TOKEN := $(shell sops -d secrets.yaml | yq .garage_hq.metrics_token -r)
+
 # Minio Credentials
 export MINIO_ROOT_USER := $(shell sops -d secrets.yaml | yq .minio.root_user -r)
 export MINIO_ROOT_PASSWORD := $(shell sops -d secrets.yaml | yq .minio.root_password -r)
@@ -27,6 +32,7 @@ KUBECONFIG ?= ${BASE_DIR}/templates/talos/infrastructure/configs/kubeconfig
 export TF_VAR_kubernetes_config_path := $(KUBECONFIG)
 export TF_VAR_cert_manager_ca_crt_path ?= $(BASE_DIR)/pki/intermediate-ca-2/intermediate-ca-2-chain.pem
 export TF_VAR_cert_manager_ca_key_path ?= $(BASE_DIR)/pki/intermediate-ca-2/private/intermediate-ca-2.key
+
 export TF_VAR_minio_user ?= $(MINIO_ROOT_USER)
 export TF_VAR_minio_password ?= $(MINIO_ROOT_PASSWORD)
 
@@ -139,7 +145,8 @@ export SERVER_SIGNING_DIR
 	terraform-plan \
 	terraform-apply \
 	terraform-destroy \
-	sops
+	encrypt \
+	decrypt
 
 .DEFAULT_GOAL := help
 
@@ -161,7 +168,8 @@ help:
 	@echo "  intermediate       Generate Intermediate CA in PKI"
 	@echo "  server             Generate Server CA in PKI"
 	@echo "  clean              Remove all PKI output (dangerous!)"
-	@echo "  sops			    Unlock secrets with SOPS"
+	@echo "  encrypt            Lock secrets with SOPS"
+	@echo "  decrypt            Unlock secrets with SOPS"
 	@echo "  help               Show this help message"
 
 ## Run playbook
@@ -351,8 +359,14 @@ pki-clean:
 	echo "Cleaning up PKI directory: $(PKI_DIR)"; \
 	rm -rf "$(PKI_DIR)"; \
 
+## Lock secrets with SOPS
+encrypt:
+	@set -e; \
+	echo "Locking secrets file: $(SECRETS_FILE)"; \
+	sops -e "$(SECRETS_FILE).dec" > "$(SECRETS_FILE).enc";
+
 ## Unlock secrets with SOPS
-sops:
+decrypt:
 	@set -e; \
 	echo "Unlocking secrets file: $(SECRETS_FILE)"; \
-	sops -d "$(SECRETS_FILE)" \
+	sops -d "$(SECRETS_FILE).enc" > "$(SECRETS_FILE).dec";
