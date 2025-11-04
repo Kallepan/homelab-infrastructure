@@ -1,0 +1,100 @@
+---
+- name: Download Binary
+  ansible.builtin.get_url:
+    url: "{{ garage_hq_download_url }}"
+    dest: "{{ garage_hq_binary_path }}"
+    mode: "0755"
+    force: false
+    validate_certs: true
+    timeout: 300
+    headers:
+      User-Agent: "Ansible"
+  register: garage_hq_binary
+
+- name: Create Garage HQ group
+  ansible.builtin.group:
+    name: "{{ garage_hq_group }}"
+    state: present
+    system: true
+
+- name: Create Garage HQ user
+  ansible.builtin.user:
+    name: "{{ garage_hq_user }}"
+    group: "{{ garage_hq_group }}"
+    shell: /sbin/nologin
+    system: true
+    state: present
+    create_home: false
+
+- name: Create Garage HQ config directory
+  ansible.builtin.file:
+    path: "{{ garage_hq_config_path | dirname }}"
+    state: directory
+    owner: "{{ garage_hq_user }}"
+    group: "{{ garage_hq_group }}"
+    mode: '0755'
+  become: true
+
+- name: Ensure Garage HQ parent directories exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ garage_hq_user }}"
+    group: "{{ garage_hq_group }}"
+    mode: '0755'
+  become: true
+  loop:
+    - "{{ garage_hq_data_dir | dirname }}"
+    - "{{ garage_hq_metadata_dir | dirname }}"
+
+- name: Ensure Garage HQ data directory exists
+  ansible.builtin.file:
+    path: "{{ garage_hq_data_dir }}"
+    state: directory
+    owner: "{{ garage_hq_user }}"
+    group: "{{ garage_hq_group }}"
+    mode: '0755'
+  become: true
+
+- name: Ensure Garage HQ metadata directory exists
+  ansible.builtin.file:
+    path: "{{ garage_hq_metadata_dir }}"
+    state: directory
+    owner: "{{ garage_hq_user }}"
+    group: "{{ garage_hq_group }}"
+    mode: '0755'
+  become: true
+
+- name: Copy Garage HQ config file
+  ansible.builtin.template:
+    src: garage.toml.j2
+    dest: "{{ garage_hq_config_path }}"
+    owner: "{{ garage_hq_user }}"
+    group: "{{ garage_hq_group }}"
+    mode: '0644'
+  become: true
+  vars:
+    garage_rpc_secret: "{{ lookup('env', 'GARAGEHQ_RPC_SECRET') }}"
+    garage_admin_token: "{{ lookup('env', 'GARAGEHQ_ADMIN_TOKEN') }}"
+    garage_metrics_token: "{{ lookup('env', 'GARAGEHQ_METRICS_TOKEN') }}"
+
+- name: Create Systemd service for Garage HQ
+  ansible.builtin.template:
+    src: garage-hq.service.j2
+    dest: /etc/systemd/system/garage-hq.service
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Reload Systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+  become: true
+
+- name: Start and enable Garage HQ service
+  ansible.builtin.systemd:
+    name: garage-hq
+    state: started
+    enabled: true
+  become: true

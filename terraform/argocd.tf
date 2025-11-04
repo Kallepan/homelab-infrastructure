@@ -12,7 +12,7 @@ resource "helm_release" "argocd" {
   chart      = "argo-cd"
 
   namespace = kubernetes_namespace_v1.argocd.metadata[0].name
-
+  version = "9.0.6"
   wait = true
 
   values = [

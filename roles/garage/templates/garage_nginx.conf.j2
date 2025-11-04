@@ -1,0 +1,54 @@
+upstream s3_backend {
+  # Local GarageHQ S3 API
+  server 127.0.0.1:3900;
+}
+
+upstream web_backend {
+  # Local GarageHQ Web API
+  server 127.0.0.1:3902;
+}
+
+# S3 API Server Block
+# Handles:
+#  - s3.storage.home.arpa (path-based S3 requests)
+#  - *.s3.storage.home.arpa (vhost-based S3 requests)
+server {
+  listen [::]:443 http2 ssl;
+  listen 443 http2 ssl;
+
+  ssl_certificate     {{ garage_hq_certs_dir }}/home-arpa.crt;
+  ssl_certificate_key {{ garage_hq_certs_dir }}/home-arpa.key;
+
+  server_name s3.storage.home.arpa *.s3.storage.home.arpa;
+
+  # Allow unlimited file uploads for S3
+  client_max_body_size 0;
+
+  location / {
+    proxy_pass http://s3_backend;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+    # Disable buffering to a temporary file.
+    proxy_max_temp_file_size 0;
+  }
+}
+
+# S3 Web Server Block
+# Handles:
+#  - web.storage.home.arpa (static website hosting)
+#  - *.web.storage.home.arpa (bucket-specific static websites)
+server {
+  listen [::]:443 http2 ssl;
+  listen 443 http2 ssl;
+
+  ssl_certificate     {{ garage_hq_certs_dir }}/home-arpa.crt;
+  ssl_certificate_key {{ garage_hq_certs_dir }}/home-arpa.key;
+
+  server_name web.storage.home.arpa *.web.storage.home.arpa;
+
+  location / {
+    proxy_pass http://web_backend;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $http_host;
+  }
+}

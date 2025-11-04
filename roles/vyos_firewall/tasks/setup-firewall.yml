@@ -245,13 +245,6 @@
       - set firewall ipv6 name LANv6-to-WANv6 rule 8006 action 'accept'
       - set firewall ipv6 name LANv6-to-WANv6 rule 8006 destination port '8006'
       - set firewall ipv6 name LANv6-to-WANv6 rule 8006 protocol 'tcp'
-      # Minio
-      - set firewall ipv4 name LANv4-to-WANv4 rule 9000 action 'accept'
-      - set firewall ipv4 name LANv4-to-WANv4 rule 9000 destination port '9000'
-      - set firewall ipv4 name LANv4-to-WANv4 rule 9000 protocol 'tcp'
-      - set firewall ipv6 name LANv6-to-WANv6 rule 9000 action 'accept'
-      - set firewall ipv6 name LANv6-to-WANv6 rule 9000 destination port '9000'
-      - set firewall ipv6 name LANv6-to-WANv6 rule 9000 protocol 'tcp'
       # Ipv4
       - set firewall zone wan from inf firewall name 'LANv4-to-WANv4'
       - set firewall zone wan from svc firewall name 'LANv4-to-WANv4'
@@ -485,13 +478,6 @@
       - set firewall ipv6 name INFv6-to-STOv6 rule 5432 action 'accept'
       - set firewall ipv6 name INFv6-to-STOv6 rule 5432 destination port '5432'
       - set firewall ipv6 name INFv6-to-STOv6 rule 5432 protocol 'tcp'
-      # S3
-      - set firewall ipv4 name INFv4-to-STOv4 rule 9000 action 'accept'
-      - set firewall ipv4 name INFv4-to-STOv4 rule 9000 destination port '9000'
-      - set firewall ipv4 name INFv4-to-STOv4 rule 9000 protocol 'tcp'
-      - set firewall ipv6 name INFv6-to-STOv6 rule 9000 action 'accept'
-      - set firewall ipv6 name INFv6-to-STOv6 rule 9000 destination port '9000'
-      - set firewall ipv6 name INFv6-to-STOv6 rule 9000 protocol 'tcp'
       # Metrics
       - set firewall ipv4 name INFv4-to-STOv4 rule 9187 action 'accept'
       - set firewall ipv4 name INFv4-to-STOv4 rule 9187 destination port '9187'
@@ -603,13 +589,6 @@
       - set firewall ipv6 name LANv6-to-STOv6 rule 5432 action 'accept'
       - set firewall ipv6 name LANv6-to-STOv6 rule 5432 destination port '5432'
       - set firewall ipv6 name LANv6-to-STOv6 rule 5432 protocol 'tcp'
-      # Allow S3
-      - set firewall ipv4 name LANv4-to-STOv4 rule 9000 action 'accept'
-      - set firewall ipv4 name LANv4-to-STOv4 rule 9000 destination port '9000'
-      - set firewall ipv4 name LANv4-to-STOv4 rule 9000 protocol 'tcp'
-      - set firewall ipv6 name LANv6-to-STOv6 rule 9000 action 'accept'
-      - set firewall ipv6 name LANv6-to-STOv6 rule 9000 destination port '9000'
-      - set firewall ipv6 name LANv6-to-STOv6 rule 9000 protocol 'tcp'
       # Ipv4
       - set firewall zone sto from svc firewall name 'LANv4-to-STOv4'
       # Ipv6
@@ -804,13 +783,6 @@
       - set firewall ipv6 name VPNv6-to-STOv6 rule 5432 action 'accept'
       - set firewall ipv6 name VPNv6-to-STOv6 rule 5432 destination port '5432'
       - set firewall ipv6 name VPNv6-to-STOv6 rule 5432 protocol 'tcp'
-      # Allow S3
-      - set firewall ipv4 name VPNv4-to-STOv4 rule 9000 action 'accept'
-      - set firewall ipv4 name VPNv4-to-STOv4 rule 9000 destination port '9000'
-      - set firewall ipv4 name VPNv4-to-STOv4 rule 9000 protocol 'tcp'
-      - set firewall ipv6 name VPNv6-to-STOv6 rule 9000 action 'accept'
-      - set firewall ipv6 name VPNv6-to-STOv6 rule 9000 destination port '9000'
-      - set firewall ipv6 name VPNv6-to-STOv6 rule 9000 protocol 'tcp'
       # Ipv4
       - set firewall zone sto from wg01 firewall name 'VPNv4-to-STOv4'
       - set firewall zone sto from vpn firewall name 'VPNv4-to-STOv4'

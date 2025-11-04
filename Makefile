@@ -2,15 +2,16 @@
 #   Ansible Variables
 # ===========================
 
-# Minio Credentials
-export MINIO_ROOT_USER := $(shell sops -d secrets.yaml | yq .minio.root_user -r)
-export MINIO_ROOT_PASSWORD := $(shell sops -d secrets.yaml | yq .minio.root_password -r)
+# GarageHQ Credentials
+export GARAGEHQ_RPC_SECRET := $(shell sops -d secrets.yaml | yq .garage_hq.rpc_secret -r)
+export GARAGEHQ_ADMIN_TOKEN := $(shell sops -d secrets.yaml | yq .garage_hq.admin_token -r)
+export GARAGEHQ_METRICS_TOKEN := $(shell sops -d secrets.yaml | yq .garage_hq.metrics_token -r)
 
 # PostgreSQL Credentials
 export POSTGRESQL_PASSWORD ?= $(shell sops -d secrets.yaml | yq .postgresql.password -r)
 export POSTGRES_EXPORTER_PASSWORD ?= $(shell sops -d secrets.yaml | yq .postgresql.exporter.password -r)
-export POSTGRESQL_AWS_ACCESS_KEY_ID ?= $(shell sops -d secrets.yaml | yq .minio.buckets.backups.access_key -r)
-export POSTGRESQL_AWS_SECRET_ACCESS_KEY ?= $(shell sops -d secrets.yaml | yq .minio.buckets.backups.secret_key -r)
+export POSTGRESQL_AWS_ACCESS_KEY_ID ?= $(shell sops -d secrets.yaml | yq .garage_hq.buckets.backups.access_key -r)
+export POSTGRESQL_AWS_SECRET_ACCESS_KEY ?= $(shell sops -d secrets.yaml | yq .garage_hq.buckets.backups.secret_key -r)
 
 SECRETS_FILE        ?= secrets.yaml
 INVENTORY           ?= inventory/hosts.yml
@@ -24,35 +25,19 @@ export PUBLIC_KEY := $(shell sops -d secrets.yaml | yq .public_key -r)
 
 BASE_DIR ?= $(shell pwd)
 KUBECONFIG ?= ${BASE_DIR}/templates/talos/infrastructure/configs/kubeconfig
+
 export TF_VAR_kubernetes_config_path := $(KUBECONFIG)
 export TF_VAR_cert_manager_ca_crt_path ?= $(BASE_DIR)/pki/intermediate-ca-2/intermediate-ca-2-chain.pem
 export TF_VAR_cert_manager_ca_key_path ?= $(BASE_DIR)/pki/intermediate-ca-2/private/intermediate-ca-2.key
-export TF_VAR_minio_user ?= $(MINIO_ROOT_USER)
-export TF_VAR_minio_password ?= $(MINIO_ROOT_PASSWORD)
 
-export TF_VAR_bucket_argo_access_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.argo.access_key -r)
-export TF_VAR_bucket_argo_secret_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.argo.secret_key -r)
+export TF_VAR_bucket_gitlab_access_key ?= $(shell sops -d secrets.yaml | yq .garage_hq.buckets.gitlab.access_key -r)
+export TF_VAR_bucket_gitlab_secret_key ?= $(shell sops -d secrets.yaml | yq .garage_hq.buckets.gitlab.secret_key -r)
 
-export TF_VAR_bucket_backups_access_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.backups.access_key -r)
-export TF_VAR_bucket_backups_secret_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.backups.secret_key -r)
+export TF_VAR_bucket_loki_access_key ?= $(shell sops -d secrets.yaml | yq .garage_hq.buckets.loki.access_key -r)
+export TF_VAR_bucket_loki_secret_key ?= $(shell sops -d secrets.yaml | yq .garage_hq.buckets.loki.secret_key -r)
 
-export TF_VAR_bucket_gitlab_access_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.gitlab.access_key -r)
-export TF_VAR_bucket_gitlab_secret_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.gitlab.secret_key -r)
-
-export TF_VAR_bucket_gitlab_runner_access_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.gitlab_runner.access_key -r)
-export TF_VAR_bucket_gitlab_runner_secret_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.gitlab_runner.secret_key -r)
-
-export TF_VAR_bucket_loki_access_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.loki.access_key -r)
-export TF_VAR_bucket_loki_secret_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.loki.secret_key -r)
-
-export TF_VAR_bucket_rancher_access_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.rancher.access_key -r)
-export TF_VAR_bucket_rancher_secret_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.rancher.secret_key -r)
-
-export TF_VAR_bucket_mlflow_access_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.mlflow.access_key -r)
-export TF_VAR_bucket_mlflow_secret_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.mlflow.secret_key -r)
-
-export TF_VAR_bucket_mattermost_access_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.mattermost.access_key -r)
-export TF_VAR_bucket_mattermost_secret_key ?= $(shell sops -d secrets.yaml | yq .minio.buckets.mattermost.secret_key -r)
+export TF_VAR_bucket_gitlab_runner_access_key ?= $(shell sops -d secrets.yaml | yq .garage_hq.buckets.gitlab_runner.access_key -r)
+export TF_VAR_bucket_gitlab_runner_secret_key ?= $(shell sops -d secrets.yaml | yq .garage_hq.buckets.gitlab_runner.secret_key -r)
 
 export TF_VAR_postgres_username ?= postgres
 export TF_VAR_postgres_password ?= $(POSTGRESQL_PASSWORD)
@@ -139,7 +124,8 @@ export SERVER_SIGNING_DIR
 	terraform-plan \
 	terraform-apply \
 	terraform-destroy \
-	sops
+	encrypt \
+	decrypt
 
 .DEFAULT_GOAL := help
 
@@ -161,7 +147,8 @@ help:
 	@echo "  intermediate       Generate Intermediate CA in PKI"
 	@echo "  server             Generate Server CA in PKI"
 	@echo "  clean              Remove all PKI output (dangerous!)"
-	@echo "  sops			    Unlock secrets with SOPS"
+	@echo "  encrypt            Lock secrets with SOPS"
+	@echo "  decrypt            Unlock secrets with SOPS"
 	@echo "  help               Show this help message"
 
 ## Run playbook
@@ -351,8 +338,14 @@ pki-clean:
 	echo "Cleaning up PKI directory: $(PKI_DIR)"; \
 	rm -rf "$(PKI_DIR)"; \
 
+## Lock secrets with SOPS
+encrypt:
+	@set -e; \
+	echo "Locking secrets file: $(SECRETS_FILE)"; \
+	sops -e "$(SECRETS_FILE).dec" > "$(SECRETS_FILE).enc";
+
 ## Unlock secrets with SOPS
-sops:
+decrypt:
 	@set -e; \
 	echo "Unlocking secrets file: $(SECRETS_FILE)"; \
-	sops -d "$(SECRETS_FILE)" \
+	sops -d "$(SECRETS_FILE).enc" > "$(SECRETS_FILE).dec";

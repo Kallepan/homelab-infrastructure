@@ -283,6 +283,14 @@ vyos_dns_configs:
       type: "A"
       name: "@"
       address: "10.10.30.10"
+    - domain: "web.storage.home.arpa"
+      type: "A"
+      name: "@"
+      address: "10.10.30.11"
+    - domain: "web.storage.home.arpa"
+      type: "A"
+      name: "any"
+      address: "10.10.30.11"
 
 vyos_nat_configs:
   - outbound_interface: eth0
