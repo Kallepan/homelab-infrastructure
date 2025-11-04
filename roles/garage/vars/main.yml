@@ -1,0 +1,25 @@
+garage_hq_version: "2.1.0"
+garage_hq_download_url: "https://garagehq.deuxfleurs.fr/_releases/v{{ garage_hq_version }}/x86_64-unknown-linux-musl/garage"
+
+garage_hq_binary_path: "/usr/local/bin/garage"
+
+garage_hq_config_path: "/etc/garage.toml"
+garage_hq_data_dir: "/garage/data"
+garage_hq_metadata_dir: "/garage/meta"
+garage_hq_certs_dir: "/garage/certs"
+
+garage_hq_certs_key: "{{ role_path }}/../../pki/intermediate-ca-2/private/home-arpa.key"
+garage_hq_certs_cert: "{{ role_path }}/../../pki/intermediate-ca-2/certs/home-arpa.crt"
+
+garage_hq_packages:
+  - "curl"
+  - "gnupg2"
+  - "ca-certificates"
+  - "lsb-release"
+  - "ubuntu-keyring"
+
+garage_hq_nginx_site_path: "/etc/nginx/sites-available/garage.conf"
+garage_hq_nginx_site_enabled_path: "/etc/nginx/sites-enabled/garage.conf"
+
+garage_hq_user: "garagehq"
+garage_hq_group: "garagehq"

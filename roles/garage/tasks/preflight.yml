@@ -1,0 +1,7 @@
+---
+- name: Install package dependencies for Garage HQ
+  ansible.builtin.apt:
+    name: "{{ garage_hq_packages }}"
+    state: present
+    update_cache: true
+  become: true

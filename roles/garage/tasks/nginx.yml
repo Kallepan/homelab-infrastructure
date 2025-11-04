@@ -1,0 +1,60 @@
+---
+- name: Install Nginx
+  ansible.builtin.apt:
+    name: nginx
+    state: present
+  become: true
+
+- name: Ensure certs directory exists
+  ansible.builtin.file:
+    path: "{{ garage_hq_certs_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+  become: true
+
+- name: Copy Web Certificate Key
+  ansible.builtin.copy:
+    src: "{{ garage_hq_certs_key }}"
+    dest: "{{ garage_hq_certs_dir }}/home-arpa.key"
+    owner: root
+    group: root
+    mode: '0600'
+  become: true
+
+- name: Copy Web Certificate Certificate
+  ansible.builtin.copy:
+    src: "{{ garage_hq_certs_cert }}"
+    dest: "{{ garage_hq_certs_dir }}/home-arpa.crt"
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+
+- name: Copy Garage Nginx site configuration
+  ansible.builtin.template:
+    src: garage_nginx.conf.j2
+    dest: "{{ garage_hq_nginx_site_path }}"
+    owner: root
+    group: root
+    mode: '0644'
+  become: true
+  notify:
+    - Reload Nginx
+
+- name: Enable Garage Nginx site
+  ansible.builtin.file:
+    src: "{{ garage_hq_nginx_site_path }}"
+    dest: "{{ garage_hq_nginx_site_enabled_path }}"
+    state: link
+  become: true
+  notify:
+    - Reload Nginx
+
+- name: Ensure Nginx is started and enabled
+  ansible.builtin.service:
+    name: nginx
+    state: started
+    enabled: true
+  become: true

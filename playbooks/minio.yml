@@ -1,7 +1,0 @@
----
-- name: Setup Minio
-  hosts: minio
-  gather_facts: true
-  become: true
-  roles:
-    - minio

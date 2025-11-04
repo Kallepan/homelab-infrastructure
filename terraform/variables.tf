@@ -59,111 +59,38 @@ variable "cert_manager_ca_key_path" {
   type        = string
 }
 
-### Minio Configuration Variables ###
-variable "minio_user" {
-  description = "The user for Minio"
-  type        = string
-  sensitive   = true
-}
-
-variable "minio_password" {
-  description = "The password for Minio"
-  type        = string
-  sensitive   = true
-}
-
-variable "bucket_argo_secret_key" {
-  description = "Secret key for the Argo bucket in Minio"
-  type        = string
-  sensitive   = true
-}
-
-variable "bucket_backups_secret_key" {
-  description = "Secret key for the Backups bucket in Minio"
-  type        = string
-  sensitive   = true
-}
-
 variable "bucket_gitlab_secret_key" {
-  description = "Secret key for the GitLab bucket in Minio"
+  description = "Secret key for the GitLab bucket"
   type        = string
   sensitive   = true
 }
 
 variable "bucket_gitlab_runner_secret_key" {
-  description = "Secret key for the GitLab Runner bucket in Minio"
+  description = "Secret key for the GitLab Runner bucket"
   type        = string
   sensitive   = true
 }
 
 variable "bucket_loki_secret_key" {
-  description = "Secret key for the Loki bucket in Minio"
-  type        = string
-  sensitive   = true
-}
-
-variable "bucket_rancher_secret_key" {
-  description = "Secret key for the Rancher bucket in Minio"
-  type        = string
-  sensitive   = true
-}
-
-variable "bucket_argo_access_key" {
-  description = "Access key for the Argo bucket in Minio"
-  type        = string
-  sensitive   = true
-}
-
-variable "bucket_backups_access_key" {
-  description = "Access key for the Backups bucket in Minio"
+  description = "Secret key for the Loki bucket"
   type        = string
   sensitive   = true
 }
 
 variable "bucket_gitlab_access_key" {
-  description = "Access key for the GitLab bucket in Minio"
+  description = "Access key for the GitLab bucket"
   type        = string
   sensitive   = true
 }
 
 variable "bucket_gitlab_runner_access_key" {
-  description = "Access key for the GitLab Runner bucket in Minio"
+  description = "Access key for the GitLab Runner bucket"
   type        = string
   sensitive   = true
 }
 
 variable "bucket_loki_access_key" {
-  description = "Access key for the Loki bucket in Minio"
-  type        = string
-  sensitive   = true
-}
-
-variable "bucket_rancher_access_key" {
-  description = "Access key for the Rancher bucket in Minio"
-  type        = string
-  sensitive   = true
-}
-
-variable "bucket_mlflow_access_key" {
-  description = "Access key for the MLflow bucket in Minio"
-  type        = string
-  sensitive   = true
-}
-
-variable "bucket_mlflow_secret_key" {
-  description = "Secret key for the MLflow bucket in Minio"
-  type        = string
-  sensitive   = true
-}
-
-variable "bucket_mattermost_access_key" {
-  description = "Access key for the Mattermost bucket in Minio"
-  type        = string
-  sensitive   = true
-}
-
-variable "bucket_mattermost_secret_key" {
-  description = "Secret key for the Mattermost bucket in Minio"
+  description = "Access key for the Loki bucket"
   type        = string
   sensitive   = true
 }

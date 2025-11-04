@@ -4,5 +4,5 @@ aws_access_key_id: ${gitlab_minio_access_key}
 aws_secret_access_key: ${gitlab_minio_secret_key}
 aws_signature_version: 4
 host: s3.storage.home.arpa
-endpoint: https://s3.storage.home.arpa:9000
+endpoint: https://s3.storage.home.arpa
 path_style: true
