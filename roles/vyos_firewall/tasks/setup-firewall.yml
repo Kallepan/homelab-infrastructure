@@ -582,6 +582,13 @@
       - set firewall ipv6 name LANv6-to-STOv6 rule 100 action 'accept'
       - set firewall ipv6 name LANv6-to-STOv6 rule 100 protocol 'ipv6-icmp'
       - set firewall ipv6 name LANv6-to-STOv6 rule 100 icmpv6 type-name 'echo-request'
+      # Allow HTTP/HTTPS
+      - set firewall ipv4 name LANv4-to-STOv4 rule 200 action 'accept'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 200 destination port '443'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 200 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 200 action 'accept'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 200 destination port '443'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 200 protocol 'tcp'
       # Allow Postgres
       - set firewall ipv4 name LANv4-to-STOv4 rule 5432 action 'accept'
       - set firewall ipv4 name LANv4-to-STOv4 rule 5432 destination port '5432'
