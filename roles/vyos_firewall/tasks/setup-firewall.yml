@@ -517,10 +517,10 @@
       - set firewall ipv6 name LANv6-to-INFv6 rule 3 state related
       # HTTP/HTTPS
       - set firewall ipv4 name LANv4-to-INFv4 rule 200 action 'accept'
-      - set firewall ipv4 name LANv4-to-INFv4 rule 200 destination port '80,443'
+      - set firewall ipv4 name LANv4-to-INFv4 rule 200 destination port '80,443,8443'
       - set firewall ipv4 name LANv4-to-INFv4 rule 200 protocol 'tcp'
       - set firewall ipv6 name LANv6-to-INFv6 rule 200 action 'accept'
-      - set firewall ipv6 name LANv6-to-INFv6 rule 200 destination port '80,443'
+      - set firewall ipv6 name LANv6-to-INFv6 rule 200 destination port '80,443,8443'
       - set firewall ipv6 name LANv6-to-INFv6 rule 200 protocol 'tcp'
       # SSH
       - set firewall ipv4 name LANv4-to-INFv4 rule 800 action 'accept'
@@ -667,10 +667,10 @@
       - set firewall ipv6 name VPNv6-to-INFv6 rule 100 icmpv6 type-name 'echo-request'
       # Allow HTTP/HTTPS
       - set firewall ipv4 name VPNv4-to-INFv4 rule 200 action 'accept'
-      - set firewall ipv4 name VPNv4-to-INFv4 rule 200 destination port '80,443,6443'
+      - set firewall ipv4 name VPNv4-to-INFv4 rule 200 destination port '80,443,6443,8443'
       - set firewall ipv4 name VPNv4-to-INFv4 rule 200 protocol 'tcp'
       - set firewall ipv6 name VPNv6-to-INFv6 rule 200 action 'accept'
-      - set firewall ipv6 name VPNv6-to-INFv6 rule 200 destination port '80,443,6443'
+      - set firewall ipv6 name VPNv6-to-INFv6 rule 200 destination port '80,443,6443,8443'
       - set firewall ipv6 name VPNv6-to-INFv6 rule 200 protocol 'tcp'
       # SSH
       - set firewall ipv4 name VPNv4-to-INFv4 rule 800 action 'accept'
