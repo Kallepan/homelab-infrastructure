@@ -63,9 +63,6 @@ vyos_dhcpv4_configs:
       - mac: "BC:24:11:C4:E9:ED"
         ip: "10.10.10.7"
         hostname: "rancher-1"
-      - mac: "BC:24:11:5C:BF:EF"
-        ip: "10.10.10.40"
-        hostname: "wazuh"
       - mac: "BC:24:11:68:64:7F"
         ip: "10.10.10.50"
         hostname: "openstack"
@@ -232,11 +229,6 @@ vyos_dns_configs:
       type: "A"
       name: "@"
       address: "10.10.10.10"
-    # Wazuh
-    - domain: "wazuh.infra.home.arpa"
-      type: "A"
-      name: "@"
-      address: "10.10.10.40"
     # Control Planes for Infrastructure Cluster
     - domain: "infra.home.arpa"
       type: "A"
