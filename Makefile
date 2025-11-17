@@ -39,6 +39,11 @@ export TF_VAR_bucket_loki_secret_key ?= $(shell sops -d secrets.yaml | yq .garag
 export TF_VAR_bucket_gitlab_runner_access_key ?= $(shell sops -d secrets.yaml | yq .garage_hq.buckets.gitlab_runner.access_key -r)
 export TF_VAR_bucket_gitlab_runner_secret_key ?= $(shell sops -d secrets.yaml | yq .garage_hq.buckets.gitlab_runner.secret_key -r)
 
+export TF_VAR_bucket_harbor_access_key ?= $(shell sops -d secrets.yaml | yq .garage_hq.buckets.harbor.access_key -r)
+export TF_VAR_bucket_harbor_secret_key ?= $(shell sops -d secrets.yaml | yq .garage_hq.buckets.harbor.secret_key -r)
+export TF_VAR_harbor_core_secret ?= $(shell sops -d secrets.yaml | yq .harbor.core_secret -r)
+export TF_VAR_harbor_postgres_password ?= $(shell sops -d secrets.yaml | yq .harbor.db.password -r)
+
 export TF_VAR_postgres_username ?= postgres
 export TF_VAR_postgres_password ?= $(POSTGRESQL_PASSWORD)
 

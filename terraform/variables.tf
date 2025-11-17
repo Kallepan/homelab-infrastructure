@@ -169,3 +169,28 @@ variable "keycloak_postgres_password" {
   type        = string
   sensitive   = true
 }
+
+## Harbor Configuration Variables
+variable "bucket_harbor_access_key" {
+  description = "Access key for the Harbor bucket"
+  type        = string
+  sensitive   = true
+}
+
+variable "bucket_harbor_secret_key" {
+  description = "Secret key for the Harbor bucket"
+  type        = string
+  sensitive   = true
+}
+
+variable "harbor_core_secret" {
+  description = "Core secret for Harbor"
+  type        = string
+  sensitive   = true
+}
+
+variable "harbor_postgres_password" {
+  description = "Password for the Harbor database"
+  type        = string
+  sensitive   = true
+}
