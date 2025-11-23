@@ -22,12 +22,8 @@ configs:
 
 server:
   ingress:
-    enabled: true
-    ingressClassName: istio
-    extraTls:
-      - hosts:
-          - argocd.infra.home.arpa
-        secretName: argocd-tls
+    enabled: false
+
   metrics:
     enabled: true
     serviceMonitor:
