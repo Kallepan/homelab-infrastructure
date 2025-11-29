@@ -870,6 +870,13 @@
       - set firewall ipv6 name VPNv6-to-LANv6 rule 800 action 'accept'
       - set firewall ipv6 name VPNv6-to-LANv6 rule 800 destination port '22,2222'
       - set firewall ipv6 name VPNv6-to-LANv6 rule 800 protocol 'tcp'
+      # Minecraft Server
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 25565 action 'accept'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 25565 destination port '25565'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 25565 protocol 'tcp_udp'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 25565 action 'accept'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 25565 destination port '25565'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 25565 protocol 'tcp_udp'
       # Ipv4
       - set firewall zone svc from wg01 firewall name 'VPNv4-to-LANv4'
       - set firewall zone svc from vpn firewall name 'VPNv4-to-LANv4'
