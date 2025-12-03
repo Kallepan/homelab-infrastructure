@@ -15,6 +15,7 @@
   kubernetes.core.helm:
     name: cilium
     chart_ref: cilium/cilium
+    chart_version: "{{ talos_cilium_version }}"
     release_namespace: kube-system
     kubeconfig: "{{ talos_cluster.working_dir }}/configs/kubeconfig"
     values:
