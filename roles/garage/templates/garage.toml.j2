@@ -2,6 +2,8 @@ metadata_dir = "{{ garage_hq_metadata_dir }}"
 data_dir = "{{ garage_hq_data_dir }}"
 db_engine = "sqlite"
 
+metadata_auto_snapshot_interval = "6h"
+
 replication_factor = 1
 
 rpc_bind_addr = "[::]:3901"
