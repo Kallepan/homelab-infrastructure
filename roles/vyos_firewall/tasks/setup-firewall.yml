@@ -589,6 +589,13 @@
       - set firewall ipv6 name LANv6-to-STOv6 rule 5432 action 'accept'
       - set firewall ipv6 name LANv6-to-STOv6 rule 5432 destination port '5432'
       - set firewall ipv6 name LANv6-to-STOv6 rule 5432 protocol 'tcp'
+      # Metrics
+      - set firewall ipv4 name LANv4-to-STOv4 rule 9187 action 'accept'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 9187 destination port '9187'
+      - set firewall ipv4 name LANv4-to-STOv4 rule 9187 protocol 'tcp'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 9187 action 'accept'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 9187 destination port '9187'
+      - set firewall ipv6 name LANv6-to-STOv6 rule 9187 protocol 'tcp'
       # Ipv4
       - set firewall zone sto from svc firewall name 'LANv4-to-STOv4'
       # Ipv6
@@ -877,6 +884,13 @@
       - set firewall ipv6 name VPNv6-to-LANv6 rule 25565 action 'accept'
       - set firewall ipv6 name VPNv6-to-LANv6 rule 25565 destination port '25565'
       - set firewall ipv6 name VPNv6-to-LANv6 rule 25565 protocol 'tcp_udp'
+      # Talos
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 50000 action 'accept'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 50000 destination port '6443,50000'
+      - set firewall ipv4 name VPNv4-to-LANv4 rule 50000 protocol 'tcp'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 50000 action 'accept'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 50000 destination port '6443,50000'
+      - set firewall ipv6 name VPNv6-to-LANv6 rule 50000 protocol 'tcp'
       # Ipv4
       - set firewall zone svc from wg01 firewall name 'VPNv4-to-LANv4'
       - set firewall zone svc from vpn firewall name 'VPNv4-to-LANv4'

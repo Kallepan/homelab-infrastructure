@@ -4,6 +4,7 @@ postgresql_necessary_packages:
   - libssl-dev
   - libreadline-dev 
   - zlib1g-dev
+  - unzip
 
 postgresql_version: '18'
 
@@ -15,7 +16,7 @@ postgresql_port: 5432
 
 postgresql_aws_region: 'eu-west-1'
 postgresql_aws_endpoint: 's3.storage.home.arpa'
-postgresql_aws_ca_bundle: "/usr/local/share/ca-certificates/root_ca.crt"
+postgresql_aws_ca_bundle: "/usr/local/share/ca-certificates/root-ca.crt"
 
 postgresql_gpg_key_url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
 

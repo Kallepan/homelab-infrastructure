@@ -1,0 +1,7 @@
+- name: Common
+  hosts: vms
+  gather_facts: true
+  roles:
+    - common
+    - ssl
+  become: true

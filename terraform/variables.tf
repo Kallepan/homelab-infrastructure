@@ -151,6 +151,12 @@ variable "gitlab_registry_postgres_password" {
 }
 
 ## GitLab Runner Configuration Variables
+variable "gitlab_privileged_runner_token" {
+  description = "GitLab Runner registration token"
+  type        = string
+  sensitive   = true
+}
+
 variable "gitlab_runner_token" {
   description = "GitLab Runner registration token"
   type        = string
@@ -191,6 +197,26 @@ variable "harbor_core_secret" {
 
 variable "harbor_postgres_password" {
   description = "Password for the Harbor database"
+  type        = string
+  sensitive   = true
+}
+
+### Mattermost
+variable "mattermost_db_connection_string" {
+  description = "Database connection string for Mattermost"
+  type        = string
+  sensitive   = true
+}
+
+### SonarQube Configuration Variables
+variable "sonarqube_postgres_password" {
+  description = "Password for the SonarQube PostgreSQL database"
+  type        = string
+  sensitive   = true
+}
+
+variable "sonarqube_monitoring_passcode" {
+  description = "Passcode for SonarQube monitoring"
   type        = string
   sensitive   = true
 }

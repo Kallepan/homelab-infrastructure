@@ -41,7 +41,7 @@
     mode: '0644'
   become: true
   notify:
-    - Reload Nginx
+    - Reload NGINX
 
 - name: Enable Garage Nginx site
   ansible.builtin.file:
@@ -50,7 +50,7 @@
     state: link
   become: true
   notify:
-    - Reload Nginx
+    - Reload NGINX
 
 - name: Ensure Nginx is started and enabled
   ansible.builtin.service:

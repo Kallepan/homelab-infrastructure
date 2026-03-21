@@ -12,7 +12,7 @@ resource "kubernetes_secret_v1" "gitlab_postgres_credentials" {
   }
 }
 
-resource "kubernetes_secret" "homelab_ca_gitlab" {
+resource "kubernetes_secret_v1" "homelab_ca_gitlab" {
   metadata {
     name      = "homelab-ca"
     namespace = "gitlab"
@@ -20,7 +20,7 @@ resource "kubernetes_secret" "homelab_ca_gitlab" {
 
   data = {
     "homelab-ca.crt" = file(var.cert_manager_ca_crt_path)
-    "gitlab.infra.home.arpa.crt" = file(var.cert_manager_ca_crt_path)
+    "gitlab.svc.home.arpa.crt" = file(var.cert_manager_ca_crt_path)
   }
 
   type = "Opaque"
@@ -41,7 +41,7 @@ resource "kubernetes_secret_v1" "gitlab_oauth_credentials" {
 }
 
 
-resource "kubernetes_secret" "gitlab_keycloak_omniauth" {
+resource "kubernetes_secret_v1" "gitlab_keycloak_omniauth" {
   metadata {
     name      = "gitlab-keycloak-omniauth"
     namespace = "gitlab"
@@ -70,7 +70,7 @@ resource "kubernetes_secret_v1" "gitlab_registry_postgres_credentials" {
   }
 }
 
-resource "kubernetes_secret" "gitlab_registry_minio_connection" {
+resource "kubernetes_secret_v1" "gitlab_registry_minio_connection" {
   metadata {
     name      = "gitlab-registry-minio-connection"
     namespace = "gitlab"
@@ -84,7 +84,7 @@ resource "kubernetes_secret" "gitlab_registry_minio_connection" {
   }
 }
 
-resource "kubernetes_secret" "gitlab_minio_connection" {
+resource "kubernetes_secret_v1" "gitlab_minio_connection" {
   metadata {
     name      = "gitlab-minio-connection"
     namespace = "gitlab"
@@ -100,7 +100,7 @@ resource "kubernetes_secret" "gitlab_minio_connection" {
   type = "Opaque"
 }
 
-resource "kubernetes_secret" "gitlab_backups_minio_creds" {
+resource "kubernetes_secret_v1" "gitlab_backups_minio_creds" {
   metadata {
     name      = "gitlab-backups-minio-creds"
     namespace = "gitlab"

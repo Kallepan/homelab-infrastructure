@@ -1,6 +1,6 @@
 resource "kubernetes_secret_v1" "cert_manager_ca" {
   metadata {
-    name      = "cert-manager-ca"
+    name      = "homelab-ca-secret"
     namespace = "cert-manager"
   }
 

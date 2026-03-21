@@ -24,7 +24,7 @@ export PUBLIC_KEY := $(shell sops -d secrets.yaml | yq .public_key -r)
 # ===========================
 
 BASE_DIR ?= $(shell pwd)
-KUBECONFIG ?= ${BASE_DIR}/templates/talos/infrastructure/configs/kubeconfig
+KUBECONFIG ?= /Users/kalle/Homelab/infrastructure/cluster-bootstrap/output/service/configs/kubeconfig
 
 export TF_VAR_kubernetes_config_path := $(KUBECONFIG)
 export TF_VAR_cert_manager_ca_crt_path ?= $(BASE_DIR)/pki/intermediate-ca-2/intermediate-ca-2-chain.pem
@@ -58,10 +58,16 @@ export TF_VAR_gitlab_postgres_username ?= $(shell sops -d secrets.yaml | yq .git
 export TF_VAR_gitlab_postgres_password ?= $(shell sops -d secrets.yaml | yq .gitlab.db.password -r)
 export TF_VAR_gitlab_registry_postgres_username ?= $(shell sops -d secrets.yaml | yq .gitlab.registry_db.username -r)
 export TF_VAR_gitlab_registry_postgres_password ?= $(shell sops -d secrets.yaml | yq .gitlab.registry_db.password -r)
+export TF_VAR_gitlab_privileged_runner_token ?= $(shell sops -d secrets.yaml | yq .gitlab.privileged_runner_token -r)
 export TF_VAR_gitlab_runner_token ?= $(shell sops -d secrets.yaml | yq .gitlab.runner_token -r)
 
 export TF_VAR_keycloak_postgres_username ?= $(shell sops -d secrets.yaml | yq .keycloak.db.username -r)
 export TF_VAR_keycloak_postgres_password ?= $(shell sops -d secrets.yaml | yq .keycloak.db.password -r)
+
+export TF_VAR_mattermost_db_connection_string ?= $(shell sops -d secrets.yaml | yq .mattermost.db.connection_string -r)
+
+export TF_VAR_sonarqube_postgres_password ?= $(shell sops -d secrets.yaml | yq .sonarqube.db.password -r)
+export TF_VAR_sonarqube_monitoring_passcode ?= $(shell sops -d secrets.yaml | yq .sonarqube.monitoring.passcode -r)
 
 # ===========================
 #   PKI Variables

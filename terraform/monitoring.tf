@@ -25,7 +25,7 @@ resource "kubernetes_secret_v1" "homelab_ca_monitoring" {
   type = "Opaque"
 }
 
-resource "kubernetes_secret" "alertmanager_mattermost_webhook_url" {
+resource "kubernetes_secret_v1" "alertmanager_mattermost_webhook_url" {
   metadata {
     name      = "alertmanager-mattermost-webhook-url"
     namespace = "observability"
