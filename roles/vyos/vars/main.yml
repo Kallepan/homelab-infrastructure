@@ -242,6 +242,15 @@ vyos_dns_configs:
       type: "A"
       name: "@"
       address: "10.10.20.51"
+    # Docker host
+    - domain: "app.home.arpa"
+      type: "A"
+      name: "@"
+      address: "10.10.20.40"
+    - domain: "app.home.arpa"
+      type: "A"
+      name: "any"
+      address: "10.10.20.40"
     # Load Balancer S3
     - domain: "s3.storage.home.arpa"
       type: "A"
