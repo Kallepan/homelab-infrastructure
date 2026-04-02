@@ -182,6 +182,10 @@
       - set firewall ipv4 name LANv4-to-WANv4 rule 3 state related
       - set firewall ipv6 name LANv6-to-WANv6 rule 3 action 'drop'
       - set firewall ipv6 name LANv6-to-WANv6 rule 3 state related
+      # Block access to upstream private 192.168.0.0/16 networks
+      - set firewall ipv4 name LANv4-to-WANv4 rule 192 action 'drop'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 192 destination address '192.168.0.0/16'
+      - set firewall ipv4 name LANv4-to-WANv4 rule 192 log
       # ICMP
       - set firewall ipv4 name LANv4-to-WANv4 rule 100 action 'accept'
       - set firewall ipv4 name LANv4-to-WANv4 rule 100 protocol 'icmp'
@@ -1054,6 +1058,10 @@
       - set firewall ipv4 name DMZv4-to-WANv4 rule 3 state related
       - set firewall ipv6 name DMZv6-to-WANv6 rule 3 action 'drop'
       - set firewall ipv6 name DMZv6-to-WANv6 rule 3 state related
+      # Block access to upstream private 192.168.0.0/16 networks
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 192 action 'drop'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 192 destination address '192.168.0.0/16'
+      - set firewall ipv4 name DMZv4-to-WANv4 rule 192 log
       # HTTP/HTTPS
       - set firewall ipv4 name DMZv4-to-WANv4 rule 200 action 'accept'
       - set firewall ipv4 name DMZv4-to-WANv4 rule 200 destination port '80,443'
