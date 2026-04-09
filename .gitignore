@@ -135,3 +135,5 @@ secrets.*.y*ml
 
 controlplane.y*ml
 worker.y*ml
+
+.ansible
