@@ -400,10 +400,10 @@
       - set firewall ipv6 name INFv6-to-LANv6 rule 100 icmpv6 type-name 'echo-request'
       # Allow HTTP/HTTPS
       - set firewall ipv4 name INFv4-to-LANv4 rule 200 action 'accept'
-      - set firewall ipv4 name INFv4-to-LANv4 rule 200 destination port '80,443,6443'
+      - set firewall ipv4 name INFv4-to-LANv4 rule 200 destination port '80,443,6443,8443'
       - set firewall ipv4 name INFv4-to-LANv4 rule 200 protocol 'tcp'
       - set firewall ipv6 name INFv6-to-LANv6 rule 200 action 'accept'
-      - set firewall ipv6 name INFv6-to-LANv6 rule 200 destination port '80,443,6443'
+      - set firewall ipv6 name INFv6-to-LANv6 rule 200 destination port '80,443,6443,8443'
       - set firewall ipv6 name INFv6-to-LANv6 rule 200 protocol 'tcp'
       # SSH
       - set firewall ipv4 name INFv4-to-LANv4 rule 800 action 'accept'
