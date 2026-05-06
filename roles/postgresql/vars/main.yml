@@ -7,6 +7,7 @@ postgresql_necessary_packages:
   - unzip
 
 postgresql_version: '18'
+postgresql_ubuntu_version: '24.04'
 
 postgresql_packages: 
   - postgresql-{{ postgresql_version }}
@@ -14,6 +15,7 @@ postgresql_packages:
 postgresql_listen_addresses: '*'
 postgresql_port: 5432
 
+# S3 bucket region for WAL-G backups
 postgresql_aws_region: 'eu-west-1'
 postgresql_aws_endpoint: 's3.storage.home.arpa'
 postgresql_aws_ca_bundle: "/usr/local/share/ca-certificates/root-ca.crt"
@@ -33,18 +35,21 @@ postgresql_exporter_port: "9187"
 
 postgresql_max_connections: 1000
 
-postgresql_pgbackrest_stanza: 'main'
+# WAL-G configuration
+postgresql_wal_g_version: 'v3.0.8'
+postgresql_wal_g_url: "https://github.com/wal-g/wal-g/releases/download/{{ postgresql_wal_g_version }}/wal-g-pg-{{ postgresql_ubuntu_version }}-amd64.tar.gz"
+postgresql_wal_g_s3_prefix: "s3://{{ postgresql_aws_bucket }}/wal-g"
 
-# pgBackRest retention configuration
+# AWS SSL configuration
+postgresql_aws_ssl_verify: 'false'
+
+# WAL-G retention configuration
 postgresql_retention_full: 3
-postgresql_retention_diff: 5
-postgresql_retention_archive: 7
 
-# pgBackRest performance
-postgresql_backup_process_max: 2
-
-# pgBackRest backup schedule configuration
+# WAL-G backup schedule configuration
 postgresql_backup_full_hour: "2"
 postgresql_backup_full_minute: "0"
-postgresql_backup_incr_hours: "*/4"
-postgresql_backup_incr_minute: "0"
+
+# WAL-G cleanup schedule configuration
+postgresql_backup_cleanup_hour: "3"
+postgresql_backup_cleanup_minute: "0"

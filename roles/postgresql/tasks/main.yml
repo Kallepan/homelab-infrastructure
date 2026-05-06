@@ -8,8 +8,8 @@
 - name: Configure PostgreSQL SSL
   ansible.builtin.include_tasks: configure-postgresql-ssl.yml
 
-- name: Configure pgBackRest
-  ansible.builtin.include_tasks: configure-pgbackrest.yml
+- name: Configure WAL-G
+  ansible.builtin.include_tasks: configure-wal-g.yml
 
 - name: Configure Postgres Metrics Exporter
   ansible.builtin.include_tasks: configure-postgres-metrics-exporter.yml
