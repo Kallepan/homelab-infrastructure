@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+source /etc/wal-g/.wal-g.env
+exec wal-g delete retain {{ postgresql_retention_full }} --confirm

@@ -1,0 +1,129 @@
+---
+- name: Install WAL-G dependencies
+  ansible.builtin.package:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - brotli
+    - pkg-config
+  become: true
+
+- name: Download WAL-G
+  ansible.builtin.get_url:
+    url: "{{ postgresql_wal_g_url }}"
+    dest: /tmp/wal-g.tar.gz
+    mode: '0644'
+  register: wal_g_download
+
+- name: Extract WAL-G
+  ansible.builtin.unarchive:
+    src: /tmp/wal-g.tar.gz
+    dest: /tmp
+    remote_src: true
+  when: wal_g_download.changed
+
+- name: Install WAL-G binary
+  ansible.builtin.copy:
+    src: /tmp/wal-g-pg-{{ postgresql_ubuntu_version }}-amd64
+    dest: /usr/local/bin/wal-g
+    mode: '0755'
+    owner: root
+    group: root
+    remote_src: true
+  become: true
+
+- name: Ensure WAL-G configuration directory exists
+  ansible.builtin.file:
+    path: /etc/wal-g
+    mode: '0750'
+    owner: postgres
+    group: postgres
+    state: directory
+  become: true
+
+- name: Ensure WAL-G log directory exists
+  ansible.builtin.file:
+    path: /var/log/wal-g
+    mode: '0750'
+    owner: postgres
+    group: postgres
+    state: directory
+  become: true
+
+- name: Deploy WAL-G environment configuration
+  ansible.builtin.template:
+    src: wal-g.env.j2
+    dest: /etc/wal-g/.wal-g.env
+    owner: postgres
+    group: postgres
+    mode: '0640'
+  become: true
+
+- name: Remove obsolete PostgreSQL service environment file
+  ansible.builtin.file:
+    path: /etc/postgresql/{{ postgresql_version }}/main/environment
+    state: absent
+  become: true
+
+- name: Install WAL-G wrapper scripts
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: root
+    group: root
+    mode: '0755'
+  loop:
+    - src: wal-g-archive-push.sh.j2
+      dest: /usr/local/bin/wal-g-archive-push
+    - src: wal-g-backup-push.sh.j2
+      dest: /usr/local/bin/wal-g-backup-push
+    - src: wal-g-delete-retain.sh.j2
+      dest: /usr/local/bin/wal-g-delete-retain
+  become: true
+
+- name: Ensure postgresql.conf is configured for WAL archiving with WAL-G
+  ansible.builtin.lineinfile:
+    dest: "{{ postgresql_config_dir }}/postgresql.conf"
+    regexp: "{{ item.regexp }}"
+    line: "{{ item.line }}"
+    state: present
+  loop:
+    - regexp: "^#?archive_mode ="
+      line: "archive_mode = on"
+    - regexp: "^#?archive_command ="
+      line: "archive_command = '/usr/local/bin/wal-g-archive-push %p'"
+    - regexp: "^#?archive_timeout ="
+      line: "archive_timeout = 60"
+    # Configure WAL level for replication
+    - regexp: "^#?wal_level ="
+      line: "wal_level = replica"
+    - regexp: "^#?max_wal_senders ="
+      line: "max_wal_senders = 10"
+    - regexp: "^#?max_replication_slots ="
+      line: "max_replication_slots = 10"
+    - regexp: "^#?wal_keep_size ="
+      line: "wal_keep_size = 1024"
+    - regexp: "^#?hot_standby ="
+      line: "hot_standby = on"
+    - regexp: "^#?listen_addresses ="
+      line: "listen_addresses = '*'"
+  notify:
+    - Restart PostgreSQL
+  become: true
+  become_user: root
+
+- name: Schedule daily full backup with wal-g
+  ansible.builtin.cron:
+    name: "WAL-G daily full backup"
+    user: postgres
+    minute: "{{ postgresql_backup_full_minute }}"
+    hour: "{{ postgresql_backup_full_hour }}"
+    job: "/usr/local/bin/wal-g-backup-push"
+
+- name: Schedule cleanup of old backups
+  ansible.builtin.cron:
+    name: "WAL-G delete old backups"
+    user: postgres
+    minute: "{{ postgresql_backup_cleanup_minute }}"
+    hour: "{{ postgresql_backup_cleanup_hour }}"
+    job: "/usr/local/bin/wal-g-delete-retain"

@@ -17,7 +17,7 @@
     group: postgres
     remote_src: true
   when: 
-    - ansible_os_family == 'Debian'
+    - ansible_facts['os_family'] == 'Debian'
     - not pga_hba_conf_bak.stat.exists
   become: true
   become_user: root
@@ -29,7 +29,7 @@
     owner: postgres
     group: postgres
     mode: '0644'
-  when: ansible_os_family == 'Debian'
+  when: ansible_facts['os_family'] == 'Debian'
   become: true
   become_user: root
   notify:
